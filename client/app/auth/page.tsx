@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "../../context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -23,6 +24,7 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth();
   const navigate = useRouter();
 
   const loginsubmit = async (e: React.FormEvent) => {
@@ -40,6 +42,11 @@ export default function AuthPage() {
         },
         { withCredentials: true }
       );
+
+      const res = await axios.get("http://localhost:3002/auth/user", {
+        withCredentials: true,
+      });
+      setUser(res.data);
       setSuccess("Login successful! Redirecting...");
       setTimeout(() => {
         navigate.push("/");

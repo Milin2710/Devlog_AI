@@ -19,46 +19,13 @@ import {
   Target,
 } from "lucide-react";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Link href="/" className="flex items-center space-x-2">
-            <img className="h-9 w-9" src="./favicon.ico" alt="" />
-              <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                DEVLOG
-              </span>
-            </Link>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <a
-              href="#features"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#roadmap"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-            >
-              Roadmap
-            </a>
-            <a
-              href="#tech"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-            >
-              Tech Stack
-            </a>
-          </nav>
-          <Link href="/auth">
-            <Button>Get Started</Button>
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="py-20 px-4">
