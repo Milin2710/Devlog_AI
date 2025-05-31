@@ -1,10 +1,26 @@
-import { Controller, Post, Body, Res, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Res,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RequestWithUser } from './types/request-with-user.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  getUser(@Req() request: RequestWithUser) {
+    return request.user;
+  }
 
   @Post('signup')
   async signup(
@@ -47,7 +63,6 @@ export class AuthController {
     const token = req.cookies['auth-token'];
 
     if (token) {
-      await this.authService.blacklistToken(token);
 
       res.clearCookie('auth-token', {
         httpOnly: true,

@@ -58,9 +58,10 @@ export class AuthService {
 
     // Create a more comprehensive payload
     const payload = {
-      id: user.id,
       email: user.email,
       uuid: user.uuid,
+      first_name: user.first_name,
+      last_name: user.last_name,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     };
@@ -70,9 +71,10 @@ export class AuthService {
     return {
       token,
       user: {
-        id: user.id,
         email: user.email,
         uuid: user.uuid,
+        first_name: user.first_name,
+        last_name: user.last_name,
       },
     };
   }

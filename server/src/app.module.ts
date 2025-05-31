@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { Authentication } from './auth/user.entity';
+import { JournalModule } from './journal/journal.module';
+import { JournalEntry } from './journal/journal.entity';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { Authentication } from './auth/user.entity';
       username: 'postgres',
       password: 'milin',
       database: 'devlog',
-      entities: [Authentication],
+      entities: [Authentication, JournalEntry],
       synchronize: true,
     }),
     AuthModule,
+    JournalModule
   ],
   controllers: [AppController],
   providers: [AppService],
