@@ -39,7 +39,7 @@ export default function EntryPage({
 
   const fetchEntry = async () => {
     try {
-      const response = await fetch(`http://localhost:3002/journal/${id}`);
+      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`);
       if (response.ok) {
         console.log("Fetched entry data:", response);
         const data = await response.json();
@@ -59,9 +59,12 @@ export default function EntryPage({
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
-        const response = await fetch(`http://localhost:3002/journal/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.ok) {
           router.push("/dashboard");
         }

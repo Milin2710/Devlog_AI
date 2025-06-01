@@ -13,9 +13,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const response = await axios.get("http://localhost:3002/auth/user", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/user",
+          {
+            withCredentials: true,
+          }
+        );
         setUser(response.data);
         console.log("userrr", response.data);
       } catch (error) {
@@ -25,7 +28,9 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
   return (
-    <AuthContext.Provider value={{ user, setUser }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, setUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

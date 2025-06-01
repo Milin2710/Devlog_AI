@@ -58,7 +58,7 @@ export default function SignUpPage() {
         termsAccepted,
       });
       const response = await axios.post(
-        "http://localhost:3002/auth/signup",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/signup",
         {
           first_name: firstname,
           last_name: lastname,
