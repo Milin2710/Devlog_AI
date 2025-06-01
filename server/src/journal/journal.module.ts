@@ -14,7 +14,7 @@ import { AuthService } from 'src/auth/auth.service';
   imports: [
     TypeOrmModule.forFeature([JournalEntry, Authentication, BlacklistedToken]),
     JwtModule.register({
-      secret: 'ieuf!!gr&^*VWDB;13t489gufb=-][;nvw',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' }, // Set token expiration
     }),
   ],
