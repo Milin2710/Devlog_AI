@@ -20,9 +20,12 @@ export default function DashboardPage() {
 
   const fetchEntries = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/journal/all", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/all",
+        {
+          withCredentials: true,
+        }
+      );
       // if (response.ok) {
       const data = await response.data;
       setEntries(data);
@@ -38,9 +41,12 @@ export default function DashboardPage() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
-        const response = await fetch(`http://localhost:3002/journal/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (response.ok) {
           fetchEntries();
 

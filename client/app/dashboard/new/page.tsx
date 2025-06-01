@@ -50,7 +50,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
     setIsLoading(true);
 
     try {
-      const url = "http://localhost:3002/journal/create";
+      const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/create";
       // const method = mode === "create" ? "POST" : "PUT"
       console.log("Saving entry:", {
         title,

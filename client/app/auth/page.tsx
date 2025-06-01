@@ -35,7 +35,7 @@ export default function AuthPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/auth/login",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/login",
         {
           email,
           password,
@@ -43,9 +43,12 @@ export default function AuthPage() {
         { withCredentials: true }
       );
 
-      const res = await axios.get("http://localhost:3002/auth/user", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/user",
+        {
+          withCredentials: true,
+        }
+      );
       setUser(res.data);
       setSuccess("Login successful! Redirecting...");
       setTimeout(() => {
