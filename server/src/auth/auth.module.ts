@@ -11,7 +11,7 @@ import { BlacklistedToken } from './blacklisted-token.entity';
   imports: [
     TypeOrmModule.forFeature([Authentication, BlacklistedToken]),
     JwtModule.register({
-      secret: 'ieuf!!gr&^*VWDB;13t489gufb=-][;nvw',
+      secret: process.env.JWT_SECRET,
     }),
   ],
   controllers: [AuthController],
