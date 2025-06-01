@@ -7,7 +7,7 @@ import { JournalEntry } from './journal.entity';
 export class JournalService {
   constructor(
     @InjectRepository(JournalEntry)
-    private userRepository: Repository<JournalEntry>,
+    private journalRepository: Repository<JournalEntry>,
   ) {}
 
   async createEntry(
@@ -22,7 +22,7 @@ export class JournalService {
     console.log(
       `Creating journal entry for user: ${author_email} (${author_uuid})`,
     );
-    const entry = this.userRepository.create({
+    const entry = this.journalRepository.create({
       author_email,
       author_uuid,
       author_first_name,
@@ -32,6 +32,30 @@ export class JournalService {
       journal_tags,
     });
 
-    return this.userRepository.save(entry);
+    return this.journalRepository.save(entry);
+  }
+
+  async getAllEntries(author_uuid: string): Promise<JournalEntry[]> {
+    console.log(`Fetching all journal entries for user: ${author_uuid}`);
+    return this.journalRepository.find({
+      where: { author_uuid },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async getEntryById(journalid: string): Promise<JournalEntry | null> {
+    // console.log(`Looking for journal entry with uuid = ${journalid}`);
+
+    const entry = await this.journalRepository.findOne({
+      where: { uuid: journalid },
+    });
+
+    // console.log('Fetched journal entry:', entry);
+    return entry;
+  }
+  async deleteEntry(journalid: string): Promise<boolean> {
+    console.log(`Deleting journal entry with uuid = ${journalid}`);
+    const result = await this.journalRepository.delete({ uuid: journalid });
+    return !!result.affected; // or !!result.affected
   }
 }
