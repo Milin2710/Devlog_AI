@@ -4,8 +4,9 @@ import {
   Get,
   Post,
   Body,
-  Res,
+  Delete,
   Req,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { JournalEntry } from './journal.entity';
@@ -40,5 +41,34 @@ export class JournalController {
       body.journal_content,
       body.journal_tags,
     );
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all')
+  async getAllEntries(
+    @Req() request: RequestWithUser,
+  ): Promise<JournalEntry[]> {
+    if (!request.user) {
+      throw new Error('User not found in request');
+    }
+    return this.journalService.getAllEntries(request.user.uuid);
+  }
+
+  @Get(':journalid')
+  async getEntry(@Param('journalid') journalid: string) {
+    const entry = await this.journalService.getEntryById(journalid);
+    if (!entry) {
+      throw new Error('Journal entry not found');
+    }
+    return entry;
+  }
+
+  @Delete(':journalid')
+  async deleteEntry(@Param('journalid') journalid: string) {
+    const deleted = await this.journalService.deleteEntry(journalid);
+    if (!deleted) {
+      throw new Error('Journal entry not found or could not be deleted');
+    }
+    return { message: 'Journal entry deleted successfully' };
   }
 }
