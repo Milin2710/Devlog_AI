@@ -8,6 +8,7 @@ import {
   Req,
   Param,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { JournalEntry } from './journal.entity';
 import { JournalService } from './journal.service';
@@ -70,5 +71,31 @@ export class JournalController {
       throw new Error('Journal entry not found or could not be deleted');
     }
     return { message: 'Journal entry deleted successfully' };
+  }
+
+  @Put(':journalid')
+  async updateEntry(
+    @Param('journalid') journalid: string,
+    @Body()
+    body: {
+      journal_title: string;
+      journal_content: string;
+      journal_tags: string[];
+    },
+  ) {
+    const entry = await this.journalService.getEntryById(journalid);
+    if (!entry) {
+      throw new Error('Journal entry not found');
+    }
+    entry.journal_title = body.journal_title;
+    entry.journal_content = body.journal_content;
+    entry.journal_tags = body.journal_tags;
+
+    return this.journalService.updateEntry(
+      journalid,
+      entry.journal_title,
+      entry.journal_content,
+      entry.journal_tags,
+    );
   }
 }

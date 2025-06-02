@@ -36,7 +36,6 @@ export class JournalService {
   }
 
   async getAllEntries(author_uuid: string): Promise<JournalEntry[]> {
-    console.log(`Fetching all journal entries for user: ${author_uuid}`);
     return this.journalRepository.find({
       where: { author_uuid },
       order: { created_at: 'DESC' },
@@ -53,9 +52,30 @@ export class JournalService {
     // console.log('Fetched journal entry:', entry);
     return entry;
   }
+
   async deleteEntry(journalid: string): Promise<boolean> {
     console.log(`Deleting journal entry with uuid = ${journalid}`);
     const result = await this.journalRepository.delete({ uuid: journalid });
     return !!result.affected; // or !!result.affected
+  }
+
+  async updateEntry(
+    journalid: string,
+    journal_title: string,
+    journal_content: string,
+    journal_tags: string[],
+  ): Promise<JournalEntry | null> {
+    const entry = await this.getEntryById(journalid);
+
+    if (!entry) {
+      console.error(`Journal entry with uuid = ${journalid} not found`);
+      return null;
+    }
+
+    entry.journal_title = journal_title;
+    entry.journal_content = journal_content;
+    entry.journal_tags = journal_tags;
+
+    return this.journalRepository.save(entry);
   }
 }
