@@ -81,7 +81,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/${entry.id}/edit`}>
+                <Link href={`/journal/${entry.uuid}/edit`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </Link>

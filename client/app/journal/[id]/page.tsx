@@ -167,7 +167,7 @@ export default function EntryPage({
             </div>
 
             <div className="flex gap-2">
-              <Link href={`/dashboard/${entry.uuid}/edit`}>
+              <Link href={`/journal/${entry.uuid}/edit`}>
                 <Button variant="outline" size="sm">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit

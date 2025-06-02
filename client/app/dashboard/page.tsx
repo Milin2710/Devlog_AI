@@ -68,7 +68,8 @@ export default function DashboardPage() {
   );
 
   const totalEntries = entries.length;
-  const totalTags = [...new Set(entries.flatMap((entry) => entry.tags))].length;
+  const totalTags = [...new Set(entries.flatMap((entry) => entry.journal_tags))]
+    .length;
   const thisWeekEntries = entries.filter((entry) => {
     const entryDate = new Date(entry.created_at);
     const weekAgo = new Date();

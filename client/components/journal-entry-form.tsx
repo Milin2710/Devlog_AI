@@ -19,25 +19,31 @@ import type { JournalEntry } from "@/lib/types";
 import { X, Plus, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 interface JournalEntryFormProps {
-  entry?: JournalEntry;
-  mode: "create" | "edit";
+  entry: JournalEntry;
 }
 
-export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
+export function JournalEntryForm({ entry }: JournalEntryFormProps) {
   const router = useRouter();
-  const [title, setTitle] = useState(entry?.title || "");
-  const [content, setContent] = useState(entry?.content || "");
-  const [tags, setTags] = useState<string[]>(entry?.tags || []);
-  const [newTag, setNewTag] = useState("");
+  const [title, setTitle] = useState(entry.journal_title);
+  const [content, setContent] = useState(entry.journal_content);
+  const [tags, setTags] = useState<string[]>(entry.journal_tags);
+  const [newTags, setNewTags] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag("");
+  const addTags = () => {
+    if (newTags.trim()) {
+      // Split by comma or space and filter out empty strings
+      const tagsToAdd = newTags
+        .split(/[,\s]+/)
+        .map((tag) => tag.trim())
+        .filter((tag) => tag && !tags.includes(tag));
+
+      if (tagsToAdd.length > 0) {
+        setTags([...tags, ...tagsToAdd]);
+        setNewTags("");
+      }
     }
   };
 
@@ -50,29 +56,29 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
     setIsLoading(true);
 
     try {
-      const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/create";
-      // const method = mode === "create" ? "POST" : "PUT"
-      const response = await axios.post(
-        url,
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${entry.uuid}`,
         {
-          journal_title: title,
-          journal_content: content,
-          journal_tags: tags,
-        },
-        {
-          withCredentials: true,
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            journal_title: title,
+            journal_content: content,
+            journal_tags: tags,
+          }),
         }
       );
 
-      // if (response.ok) {
-      router.push("/dashboard");
-      router.refresh();
-      // }
-      // else {
-      //   throw new Error("Failed to save entry")
-      // }
+      if (response.ok) {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        throw new Error("Failed to update entry");
+      }
     } catch (error) {
-      console.error("Error saving entry:", error);
+      console.error("Error updating entry:", error);
       // In a real app, show error toast
     } finally {
       setIsLoading(false);
@@ -90,20 +96,14 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
           Back to Dashboard
         </Link>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          {mode === "create" ? "New Journal Entry" : "Edit Entry"}
+          Edit Entry
         </h1>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>
-            {mode === "create" ? "Create Entry" : "Edit Entry"}
-          </CardTitle>
-          <CardDescription>
-            {mode === "create"
-              ? "Document your coding journey, learnings, and breakthroughs"
-              : "Update your journal entry"}
-          </CardDescription>
+          <CardTitle>Edit Entry</CardTitle>
+          <CardDescription>Update your journal entry</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -138,22 +138,26 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
               <Label>Tags</Label>
               <div className="flex gap-2 mb-2">
                 <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Add a tag..."
+                  value={newTags}
+                  onChange={(e) => setNewTags(e.target.value)}
+                  placeholder="Add tags (separate with commas or spaces)..."
                   onKeyPress={(e) =>
-                    e.key === "Enter" && (e.preventDefault(), addTag())
+                    e.key === "Enter" && (e.preventDefault(), addTags())
                   }
                 />
                 <Button
                   type="button"
-                  onClick={addTag}
+                  onClick={addTags}
                   variant="outline"
                   size="sm"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
+              <p className="text-sm text-slate-500">
+                You can add multiple tags at once by separating them with commas
+                or spaces
+              </p>
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
@@ -179,11 +183,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
             <div className="flex gap-4 pt-4">
               <Button type="submit" disabled={isLoading}>
                 <Save className="h-4 w-4 mr-2" />
-                {isLoading
-                  ? "Saving..."
-                  : mode === "create"
-                  ? "Create Entry"
-                  : "Update Entry"}
+                {isLoading ? "Updating..." : "Update Entry"}
               </Button>
               <Button
                 type="button"
