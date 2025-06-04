@@ -26,7 +26,6 @@ interface JournalEntryCardProps {
 }
 
 export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
-  console.log("Rendering JournalEntryCard for entry:", entry);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
