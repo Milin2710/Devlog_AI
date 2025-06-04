@@ -22,8 +22,8 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 
 ## 🔧 Core Features (v1 – MVP)
 
-- [x] Auth (Clerk/Auth.js)
-- [ ] Add/Edit/Delete Journal Entries
+- [x] Auth
+- [x] Add/Edit/Delete Journal Entries
 - [ ] Tag entries by topics
 - [ ] Calendar/Timeline view
 - [ ] Full-text search

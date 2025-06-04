@@ -5,12 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { JournalEntryCard } from "@/components/journal-entry-card";
 import type { JournalEntry } from "@/lib/types";
-import { Plus, Search, BookOpen, TrendingUp, Tags } from "lucide-react";
+import {
+  Plus,
+  Search,
+  BookOpen,
+  TrendingUp,
+  Tags,
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
 
 export default function DashboardPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,6 +37,7 @@ export default function DashboardPage() {
       // if (response.ok) {
       const data = await response.data;
       setEntries(data);
+      setAllEntries(data);
       console.log("Fetched entries:", data);
       // }
     } catch (error) {
@@ -67,6 +76,24 @@ export default function DashboardPage() {
       )
   );
 
+  const searchQueryfunc = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      setEntries(allEntries);
+    } else {
+      setEntries(
+        allEntries.filter(
+          (entry) =>
+            entry.journal_title.toLowerCase().includes(query.toLowerCase()) ||
+            entry.journal_content.toLowerCase().includes(query.toLowerCase()) ||
+            entry.journal_tags.some((tag) =>
+              tag.toLowerCase().includes(query.toLowerCase())
+            )
+        )
+      );
+    }
+  };
+
   const totalEntries = entries.length;
   const totalTags = [...new Set(entries.flatMap((entry) => entry.journal_tags))]
     .length;
@@ -95,6 +122,13 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to home
+          </Link>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -163,7 +197,7 @@ export default function DashboardPage() {
             <Input
               placeholder="Search entries, tags, or content..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => searchQueryfunc(e.target.value)}
               className="pl-10"
             />
           </div>
