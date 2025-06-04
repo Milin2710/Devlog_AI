@@ -24,7 +24,7 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 
 - [x] Auth
 - [x] Add/Edit/Delete Journal Entries
-- [ ] Tag entries by topics
+- [x] Tag entries by topics
 - [ ] Calendar/Timeline view
 - [ ] Full-text search
 
