@@ -2,14 +2,42 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
+import { cn } from "@/lib/utils";
+import {
+  Code,
+  Menu,
+  Plus,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  Moon,
+  Sun,
+  Calendar,
+} from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import LoadingBar from "react-top-loading-bar";
 
 export default function Navbar() {
   const { user, setUser } = useAuth();
-  console.log("user", user);
+  const [progress, setProgress] = useState(0);
+
+  // console.log("user", user);
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark");
+  };
+
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
   const router = useRouter();
   const handleLogout = async () => {
     try {
@@ -24,43 +52,150 @@ export default function Navbar() {
       console.error("Logout failed", err);
     }
   };
+
+  const navItems = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "Calendar",
+      href: "/dashboard/calendar",
+      icon: Calendar,
+    },
+    {
+      name: "New Entry",
+      href: "/dashboard/new",
+      icon: Plus,
+    },
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: Settings,
+    },
+  ];
+
+  useEffect(() => {
+    setProgress(20);
+
+    setTimeout(() => {
+      setProgress(40);
+    }, 100);
+
+    setTimeout(() => {
+      setProgress(100);
+    }, 400);
+  }, [pathname]);
+
   return (
     <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 sticky top-0 z-50">
+      <LoadingBar
+        color="#0761d1"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-2">
-            <img className="h-9 w-9" src="./favicon.ico" alt="" />
+            <img
+              className="h-9 w-9"
+              src={"http://localhost:3000/favicon.ico"}
+              alt=""
+            />
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
               DEVLOG
             </span>
           </Link>
         </div>
-        <nav className="hidden md:flex items-center space-x-6">
-          <a
-            href="#features"
-            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2 text-sm font-medium transition-colors",
+                isActive(item.href)
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.name}
+            </Link>
+          ))}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="ml-2"
           >
-            Features
-          </a>
-          <a
-            href="#roadmap"
-            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-          >
-            Roadmap
-          </a>
-          <a
-            href="#tech"
-            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-          >
-            Tech Stack
-          </a>
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Button>
         </nav>
+
+        {/* Mobile Navigation */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon" aria-label="Menu">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <div className="flex flex-col gap-6 py-6">
+              <div className="flex items-center gap-2">
+                <Code className="h-6 w-6 text-blue-600" />
+                <span className="text-xl font-bold">DEVLOG</span>
+              </div>
+              <nav className="flex flex-col gap-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors",
+                      isActive(item.href)
+                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                        : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.name}
+                  </Link>
+                ))}
+                <div className="flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTheme}
+                    className="p-0"
+                  >
+                    {theme === "light" ? (
+                      <Moon className="h-5 w-5" />
+                    ) : (
+                      <Sun className="h-5 w-5" />
+                    )}
+                    <span className="ml-3">
+                      {theme === "light" ? "Dark Mode" : "Light Mode"}
+                    </span>
+                  </Button>
+                </div>
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+
         {user ? (
           <div className="flex items-center space-x-4">
             <Link href="/dashboard">
-              <Button className="hidden md:inline-flex">
-                Dashboard
-              </Button>
+              <Button className="hidden md:inline-flex">Dashboard</Button>
             </Link>
             {/* <Link onClick={handleLogout} href="/auth"> */}
             <Button

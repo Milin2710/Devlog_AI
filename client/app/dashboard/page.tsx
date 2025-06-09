@@ -11,6 +11,7 @@ import {
   BookOpen,
   TrendingUp,
   Tags,
+  Calendar,
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
@@ -122,13 +123,6 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link
-            href="/"
-            className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to home
-          </Link>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -187,6 +181,33 @@ export default function DashboardPage() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+
+                {/* Quick Actions */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Quick Actions</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link href="/dashboard/calendar">
+              <Button variant="outline" className="w-full justify-start h-auto p-4">
+                <Calendar className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">View Calendar</div>
+                  <div className="text-sm text-slate-500">See your activity throughout the year</div>
+                </div>
+              </Button>
+            </Link>
+            <Link href="/dashboard/new">
+              <Button variant="outline" className="w-full justify-start h-auto p-4">
+                <Plus className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium">New Entry</div>
+                  <div className="text-sm text-slate-500">Document today's learning</div>
+                </div>
+              </Button>
+            </Link>
           </div>
         </div>
 

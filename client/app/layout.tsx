@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import Navbar from "@/components/Navbar";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "DEVLOG | Log your coding journey",
@@ -19,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

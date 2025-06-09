@@ -16,6 +16,7 @@ export class JournalService {
     author_first_name: string,
     author_last_name: string,
     journal_title: string,
+    created_at: Date,
     journal_content: string,
     journal_tags: string[],
   ): Promise<JournalEntry> {
@@ -28,6 +29,7 @@ export class JournalService {
       author_first_name,
       author_last_name,
       journal_title,
+      created_at: created_at || new Date(),
       journal_content,
       journal_tags,
     });
@@ -62,6 +64,7 @@ export class JournalService {
   async updateEntry(
     journalid: string,
     journal_title: string,
+    created_at: Date,
     journal_content: string,
     journal_tags: string[],
   ): Promise<JournalEntry | null> {
@@ -72,7 +75,10 @@ export class JournalService {
       return null;
     }
 
+    console.log(`Updating journal entry with uuid = ${created_at}`);
+
     entry.journal_title = journal_title;
+    entry.created_at = created_at;
     entry.journal_content = journal_content;
     entry.journal_tags = journal_tags;
 
