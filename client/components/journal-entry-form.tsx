@@ -14,11 +14,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import type { JournalEntry } from "@/lib/types";
-import { X, Plus, Save, ArrowLeft } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { X, Plus, Save, ArrowLeft, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 interface JournalEntryFormProps {
   entry: JournalEntry;
@@ -30,6 +38,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
   const [content, setContent] = useState(entry.journal_content);
   const [tags, setTags] = useState<string[]>(entry.journal_tags);
   const [newTags, setNewTags] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>(entry.created_at);
   const [isLoading, setIsLoading] = useState(false);
 
   const addTags = () => {
@@ -56,6 +65,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
     setIsLoading(true);
 
     try {
+      console.log("date", selectedDate);
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${entry.uuid}`,
         {
@@ -65,6 +75,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
           },
           body: JSON.stringify({
             journal_title: title,
+            created_at: selectedDate.toISOString(),
             journal_content: content,
             journal_tags: tags,
           }),
@@ -84,6 +95,9 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
       setIsLoading(false);
     }
   };
+
+  const isToday = selectedDate === new Date();
+  const isFuture = selectedDate > new Date();
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -107,17 +121,58 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="What did you learn today?"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What did you learn today?"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Entry Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? (
+                        format(selectedDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-sm text-slate-500">
+                  {isToday
+                    ? "Creating entry for today"
+                    : isFuture
+                    ? "Future dates are not allowed"
+                    : `Creating entry for ${format(
+                        selectedDate,
+                        "MMMM d, yyyy"
+                      )}`}
+                </p>
+              </div>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
               <Textarea

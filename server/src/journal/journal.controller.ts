@@ -27,6 +27,7 @@ export class JournalController {
       journal_title: string;
       journal_content: string;
       journal_tags: string[];
+      created_at: Date;
     },
     @Req() request: RequestWithUser,
   ): Promise<JournalEntry> {
@@ -39,6 +40,7 @@ export class JournalController {
       request.user.first_name,
       request.user.last_name,
       body.journal_title,
+      body.created_at || new Date(),
       body.journal_content,
       body.journal_tags,
     );
@@ -79,6 +81,7 @@ export class JournalController {
     @Body()
     body: {
       journal_title: string;
+      created_at: Date;
       journal_content: string;
       journal_tags: string[];
     },
@@ -88,12 +91,14 @@ export class JournalController {
       throw new Error('Journal entry not found');
     }
     entry.journal_title = body.journal_title;
+    entry.created_at = body.created_at;
     entry.journal_content = body.journal_content;
     entry.journal_tags = body.journal_tags;
 
     return this.journalService.updateEntry(
       journalid,
       entry.journal_title,
+      entry.created_at,
       entry.journal_content,
       entry.journal_tags,
     );

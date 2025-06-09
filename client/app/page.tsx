@@ -24,8 +24,6 @@ import Navbar from "@/components/Navbar";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <Navbar />
 
       {/* Hero Section */}
       <section className="py-20 px-4">

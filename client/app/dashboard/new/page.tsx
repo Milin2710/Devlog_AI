@@ -14,12 +14,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { JournalEntry } from "@/lib/types";
-import { X, Plus, Save, ArrowLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { X, Plus, Save, ArrowLeft, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { format } from "date-fns";
 
 interface JournalEntryFormProps {
   entry?: JournalEntry;
@@ -32,6 +40,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
   const [content, setContent] = useState(entry?.content || "");
   const [tags, setTags] = useState<string[]>(entry?.tags || []);
   const [newTag, setNewTag] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
 
   const addTag = () => {
@@ -51,11 +60,19 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
 
     try {
       const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/create";
-      // const method = mode === "create" ? "POST" : "PUT"
+      const entryDate = new Date(selectedDate);
+      const now = new Date();
+      entryDate.setHours(
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds(),
+        now.getMilliseconds()
+      );
       const response = await axios.post(
         url,
         {
           journal_title: title,
+          created_at: entryDate.toISOString(),
           journal_content: content,
           journal_tags: tags,
         },
@@ -78,6 +95,9 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
       setIsLoading(false);
     }
   };
+
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+  const isFuture = selectedDate > new Date();
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -107,17 +127,58 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="What did you learn today?"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What did you learn today?"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Entry Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? (
+                        format(selectedDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-sm text-slate-500">
+                  {isToday
+                    ? "Creating entry for today"
+                    : isFuture
+                    ? "Future dates are not allowed"
+                    : `Creating entry for ${format(
+                        selectedDate,
+                        "MMMM d, yyyy"
+                      )}`}
+                </p>
+              </div>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
               <Textarea
