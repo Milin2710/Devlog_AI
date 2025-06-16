@@ -68,6 +68,7 @@
     "remark-rehype": "^11.1.2",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
+    "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
     "unified": "^11.0.5",
     "vaul": "^0.9.6",

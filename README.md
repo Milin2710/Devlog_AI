@@ -25,23 +25,21 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 - [x] Auth
 - [x] Add/Edit/Delete Journal Entries
 - [x] Tag entries by topics
-- [ ] Calendar/Timeline view
-- [ ] Full-text search
+- [x] Calendar/Timeline view
+- [x] Full-text search
 
 ---
 
 ## 🚀 Phase 2 – Utility Upgrade
 
-- [ ] Markdown support (Editor.js or TipTap)
-- [ ] Weekly/Monthly stats (streaks, entries)
-- [ ] CLI or VSCode extension to add entries
-- [ ] Export logs as JSON/Markdown
+- [x] Markdown support (Editor.js or TipTap)
+- [x] Weekly/Monthly stats (streaks, entries)
 
 ---
 
 ## 🧠 Phase 3 – AI Layer
 
-- [ ] Summarize entries using OpenAI
+- [x] Summarize entries using OpenAI
 - [ ] Auto-tag entries based on content
 - [ ] "What did I learn last month?" insights
 - [ ] Generate blog drafts from journal data

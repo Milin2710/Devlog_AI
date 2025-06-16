@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { Authentication } from './auth/user.entity';
 import { JournalModule } from './journal/journal.module';
 import { JournalEntry } from './journal/journal.entity';
+import { SummarizeModule } from './summarize/summarize.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { JournalEntry } from './journal/journal.entity';
     }),
     AuthModule,
     JournalModule,
+    SummarizeModule
   ],
   controllers: [AppController],
   providers: [AppService],
