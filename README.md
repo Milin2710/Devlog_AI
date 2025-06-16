@@ -39,10 +39,17 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 
 ## 🧠 Phase 3 – AI Layer
 
-- [x] Summarize entries using OpenAI
+- [x] Summarize entries using GEMINI
 - [ ] Auto-tag entries based on content
 - [ ] "What did I learn last month?" insights
 - [ ] Generate blog drafts from journal data
+
+---
+
+## 🫙 Phase 4 - Caching
+
+- [ ] Cache the summary for journals
+- [ ] Cache journal content and dashboard data
 
 ---
 
@@ -58,7 +65,7 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 - ✅ Type ORM + PostgreSQL
 
 ### AI Integration
-- ✅ OpenAI API (REST endpoints in NestJS)
+- ✅ GEMINI API
 
 ---
 
