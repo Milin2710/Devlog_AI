@@ -32,7 +32,7 @@ export function TypingAnimation({
   return (
     <div className="relative">
       <div className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-normal">
-        <div className="prose dark:prose-invert max-w-none gap-0 my-8" dangerouslySetInnerHTML={{ __html: displayedText }}></div>
+        <div className="prose dark:prose-invert max-w-none break-words" dangerouslySetInnerHTML={{ __html: displayedText }}></div>
         {/* {displayedText} */}
 
         {currentIndex < text.length && (

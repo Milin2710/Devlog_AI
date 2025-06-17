@@ -46,8 +46,9 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 
 ---
 
-## 🫙 Phase 4 - Caching
+## 🫙 Phase 4 - Optimization Layer (Caching + Speed)
 
+- [ ] Speed Optimization
 - [ ] Cache the summary for journals
 - [ ] Cache journal content and dashboard data
 

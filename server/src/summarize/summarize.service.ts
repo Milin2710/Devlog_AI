@@ -5,7 +5,13 @@ import axios from 'axios';
 export class SummarizeService {
   async summarizeMarkdown(markdownText: string): Promise<string> {
     const prompt =
-      'Summarize the following markdown content clearly and concisely in markdown format:';
+      `You are an assistant that reads markdown content and summarizes it in well-structured HTML for display in a web application.\n\n` +
+      `- The summary should be concise and capture the main points.\n` +
+      `- Use proper HTML tags like <h2>, <p>, <ul>, <li>, <strong>, etc.\n` +
+      `- Avoid wrapping the whole output in a <div>.\n` +
+      `- DO NOT use <pre> or <code> tags.\n` +
+      `- DO NOT return markdown — only clean, valid HTML.\n\n` +
+      `Summarize the following markdown content:\n\n${markdownText}`;
 
     const requestBody = {
       contents: [
@@ -21,7 +27,7 @@ export class SummarizeService {
 
     try {
       const response = await axios.post(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD7miafKV3wGGX8EFz8b8EkNnLPRYDjxy0',
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
         requestBody,
         {
           headers: {

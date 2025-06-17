@@ -174,7 +174,7 @@ export default function EntryPage({
         // setSummaryData(response.data.summary);
         // setFormattedContent(response.data.summary);
         const formatted = await formatContent(response.data.summary);
-        setSummaryData(formatted);
+        setSummaryData(response.data.summary);
       })
       .catch((error) => {
         console.error(
@@ -184,7 +184,7 @@ export default function EntryPage({
       });
     setIsSummarizing(false);
   }
-  console.log("Formatted Content:", formattedContent);
+  // console.log("Formatted Content:", formattedContent);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
