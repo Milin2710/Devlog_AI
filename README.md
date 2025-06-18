@@ -63,18 +63,10 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 
 ### Backend
 - ✅ NestJS
-- ✅ Type ORM + PostgreSQL
+- ✅ Type ORM + PostgreSQL + Redis
 
 ### AI Integration
 - ✅ GEMINI API
-
----
-
-## 📁 Project Structure
-
-Devlog_AI/
-├── client/ # Next.js frontend
-└── server/ # NestJS backend
 
 ---
 

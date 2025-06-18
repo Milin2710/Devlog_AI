@@ -2,3 +2,4 @@ node_modules/
 .next/
 dist/
 .env
+replacements.txt

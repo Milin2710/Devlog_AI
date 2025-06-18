@@ -8,6 +8,7 @@ import { Authentication } from './auth/user.entity';
 import { JournalModule } from './journal/journal.module';
 import { JournalEntry } from './journal/journal.entity';
 import { SummarizeModule } from './summarize/summarize.module';
+import { AutotagModule } from './autotag/autotag.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { SummarizeModule } from './summarize/summarize.module';
     }),
     AuthModule,
     JournalModule,
-    SummarizeModule
+    SummarizeModule,
+    AutotagModule,
   ],
   controllers: [AppController],
   providers: [AppService],
