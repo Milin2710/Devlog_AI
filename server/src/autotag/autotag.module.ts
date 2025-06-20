@@ -8,5 +8,4 @@ import { AutotagService } from './autotag.service';
   providers: [AutotagService],
   exports: [AutotagService],
 })
-
 export class AutotagModule {}
