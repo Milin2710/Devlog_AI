@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,40 +19,59 @@ import {
   Zap,
   BookOpen,
   Target,
+  Plus,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useAuth } from "../context/AuthContext";
 
 export default function LandingPage() {
+  const { user, setUser } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <Badge variant="secondary" className="mb-6">
             <Zap className="h-4 w-4 mr-2" />
-            Your Personal Coding Journal with AI Superpowers
+            {user
+              ? "Welcome Back to Your Coding Journal"
+              : "Your Personal Coding Journal with AI Superpowers"}
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-            Track Every
-            <span className="text-blue-600 block">Coding Breakthrough</span>
+            {user ? "Keep Building," : "Track Every"}
+            <span className="text-blue-600 block">
+              {user ? "Keep Growing" : "Coding Breakthrough"}
+            </span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-            A personal web app to capture your daily coding learnings, errors,
-            and victories. Searchable, taggable, and enhanced by AI to
-            accelerate your growth.
+            {user
+              ? "Your personal coding journey is one entry away. Log today’s lessons, track your errors, and reflect on your breakthroughs — all enhanced by AI."
+              : "A personal web app to capture your daily coding learnings, errors,and victories. Searchable, taggable, and enhanced by AI to accelerate your growth."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth">
+            <Link href={user ? "/dashboard" : "/auth"}>
               <Button size="lg" className="text-lg px-8 py-3">
-                Start Your Journey
+                {user ? (
+                  <LayoutDashboard className="h-5 w-5 mr-2" />
+                ) : (
+                  <BookOpen className="h-5 w-5 mr-2" />
+                )}
+                {user ? "Go to Journals" : "Start Your Journey"}
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
-              <BookOpen className="h-5 w-5 mr-2" />
-              View Demo
-            </Button>
+            <Link href={user ? "/dashboard/new" : "/demo"}>
+              <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+                {user ? (
+                  <Plus className="h-5 w-5 mr-2" />
+                ) : (
+                  <BookOpen className="h-5 w-5 mr-2" />
+                )}
+                {user ? "New Entry" : "View Demo"}
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -126,100 +147,12 @@ export default function LandingPage() {
             <Card className="border-2 hover:border-blue-200 transition-colors">
               <CardHeader>
                 <Target className="h-10 w-10 text-indigo-600 mb-2" />
-                <CardTitle>Goal Oriented</CardTitle>
+                <CardTitle>Blog Draft Generator</CardTitle>
                 <CardDescription>
-                  Stay focused on DSA while building real-world development
-                  skills
+                  Transform your journal entries into ready-to-edit blog post
+                  drafts with AI assistance
                 </CardDescription>
               </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Roadmap Section */}
-      <section id="roadmap" className="py-20 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-              Development Roadmap
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300">
-              From MVP to AI-powered coding companion
-            </p>
-          </div>
-
-          <div className="space-y-8">
-            <Card className="border-l-4 border-l-green-500">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-green-700 dark:text-green-400">
-                    Phase 1: MVP
-                  </CardTitle>
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-800"
-                  >
-                    In Progress
-                  </Badge>
-                </div>
-                <CardDescription>
-                  Core journaling functionality with authentication and search
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li>• Authentication (Clerk/Auth.js)</li>
-                  <li>• Add/Edit/Delete journal entries</li>
-                  <li>• Tag entries by topics</li>
-                  <li>• Calendar/Timeline view</li>
-                  <li>• Full-text search</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-l-4 border-l-blue-500">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-blue-700 dark:text-blue-400">
-                    Phase 2: Utility Upgrade
-                  </CardTitle>
-                  <Badge variant="outline">Planned</Badge>
-                </div>
-                <CardDescription>
-                  Enhanced editing and analytics features
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li>• Markdown support with rich editor</li>
-                  <li>• Weekly/Monthly statistics and streaks</li>
-                  <li>• CLI and VSCode extension</li>
-                  <li>• Export capabilities (JSON/Markdown)</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-l-4 border-l-purple-500">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-purple-700 dark:text-purple-400">
-                    Phase 3: AI Layer
-                  </CardTitle>
-                  <Badge variant="outline">Future</Badge>
-                </div>
-                <CardDescription>
-                  AI-powered insights and content generation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li>• AI-powered entry summaries</li>
-                  <li>• Automatic content-based tagging</li>
-                  <li>• Learning pattern analysis</li>
-                  <li>• Blog post generation from logs</li>
-                </ul>
-              </CardContent>
             </Card>
           </div>
         </div>
@@ -279,7 +212,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Badge variant="secondary">Prisma ORM</Badge>
+                    <Badge variant="secondary">Type ORM</Badge>
                     <span className="text-sm text-slate-600 dark:text-slate-300">
                       Type-safe database
                     </span>
@@ -303,15 +236,9 @@ export default function LandingPage() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
-                    <Badge variant="secondary">OpenAI API</Badge>
+                    <Badge variant="secondary">Gemini API</Badge>
                     <span className="text-sm text-slate-600 dark:text-slate-300">
                       Smart summaries
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Badge variant="secondary">BullMQ</Badge>
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
-                      Background processing
                     </span>
                   </div>
                 </div>
@@ -333,7 +260,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Badge variant="secondary">Railway</Badge>
+                    <Badge variant="secondary">Render</Badge>
                     <span className="text-sm text-slate-600 dark:text-slate-300">
                       Backend & DB hosting
                     </span>
@@ -355,7 +282,9 @@ export default function LandingPage() {
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Start Your Coding Journey Today
+            {user
+              ? "Log today's coding journey"
+              : "Start Your Coding Journey Today"}
           </h2>
           <p className="text-xl text-blue-100 mb-8">
             Built for YOU. Improves dev + DSA retention. Showcases full-stack +
@@ -363,7 +292,7 @@ export default function LandingPage() {
           </p>
           <Link href="/auth">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-              Get Started Free
+              {user ? "Create Your Journal" : "Get Started Free"}
             </Button>
           </Link>
         </div>
@@ -380,7 +309,7 @@ export default function LandingPage() {
             One project, lifelong benefit. Your personal coding companion.
           </p>
           <p className="text-sm text-slate-500">
-            © 2024 DEVLOG. Built with passion for developers.
+            © 2025 DEVLOG. Built with passion for developers.
           </p>
         </div>
       </footer>

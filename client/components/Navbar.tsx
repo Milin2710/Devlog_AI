@@ -86,11 +86,6 @@ export default function Navbar() {
       href: "/dashboard/new",
       icon: Plus,
     },
-    {
-      name: "Settings",
-      href: "/settings",
-      icon: Settings,
-    },
   ];
 
   useEffect(() => {
@@ -143,18 +138,6 @@ export default function Navbar() {
               {item.name}
             </Link>
           ))}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="ml-2"
-          >
-            {theme === "light" ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
-          </Button>
         </nav>
 
         {/* Mobile Navigation */}
@@ -211,6 +194,18 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="ml-2"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
             <Link href="/dashboard">
               <Button className="hidden md:inline-flex">Dashboard</Button>
             </Link>
@@ -225,9 +220,23 @@ export default function Navbar() {
             {/* </Link> */}
           </div>
         ) : (
-          <Link href="/auth">
-            <Button>Get Started</Button>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="ml-2"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
+            <Link href="/auth">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
         )}
       </div>
     </header>
