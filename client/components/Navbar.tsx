@@ -110,11 +110,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-2">
-            <img
-              className="h-9 w-9"
-              src={"http://localhost:3000/favicon.ico"}
-              alt=""
-            />
+            <img className="h-9 w-9" src="/favicon.ico" alt="" />
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
               DEVLOG
             </span>
