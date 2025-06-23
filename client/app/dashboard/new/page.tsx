@@ -23,7 +23,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { X, Plus, Save, ArrowLeft, CalendarIcon } from "lucide-react";
+import {
+  X,
+  Plus,
+  Save,
+  ArrowLeft,
+  CalendarIcon,
+  ImageIcon,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -41,6 +50,8 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
   const [tags, setTags] = useState<string[]>(entry?.tags || []);
   const [newTag, setNewTag] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const addTag = () => {
@@ -52,6 +63,44 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB");
+        return;
+      }
+
+      setFeaturedImage(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFeaturedImage(null);
+    setImagePreview(null);
+    // Reset the file input
+    const fileInput = document.getElementById(
+      "featured-image"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,18 +117,19 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
         now.getSeconds(),
         now.getMilliseconds()
       );
-      const response = await axios.post(
-        url,
-        {
-          journal_title: title,
-          created_at: entryDate.toISOString(),
-          journal_content: content,
-          journal_tags: tags,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      console.log("FEATURED IMAGE:", featuredImage);
+
+      const formData = new FormData();
+      formData.append("journal_title", title);
+      formData.append("created_at", entryDate.toISOString());
+      formData.append("journal_content", content);
+      formData.append("journal_tags", JSON.stringify(tags));
+      if (featuredImage) {
+        formData.append("file", featuredImage);
+      }
+      const response = await axios.post(url, formData, {
+        withCredentials: true,
+      });
 
       // if (response.ok) {
       router.push("/dashboard");
@@ -179,6 +229,76 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
                 </p>
               </div>
             </div>
+
+            {/* Featured Image Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="featured-image">Featured Image</Label>
+              <div className="space-y-4">
+                {!imagePreview ? (
+                  <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
+                    <input
+                      id="featured-image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <label htmlFor="featured-image" className="cursor-pointer">
+                      <div className="flex flex-col items-center space-y-2">
+                        <Upload className="h-8 w-8 text-slate-400" />
+                        <div className="text-sm text-slate-600 dark:text-slate-300">
+                          <span className="font-medium text-blue-600 hover:text-blue-500">
+                            Click to upload
+                          </span>{" "}
+                          or drag and drop
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          PNG, JPG, GIF up to 5MB
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                      <img
+                        src={imagePreview || "/placeholder.svg"}
+                        alt="Featured image preview"
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={removeImage}
+                          className="opacity-0 hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+                      <div className="flex items-center space-x-2">
+                        <ImageIcon className="h-4 w-4" />
+                        <span>{featuredImage?.name}</span>
+                      </div>
+                      <span>
+                        {featuredImage &&
+                          (featuredImage.size / 1024 / 1024).toFixed(2)}{" "}
+                        MB
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-slate-500">
+                Add a featured image to make your journal entry more visual and
+                engaging
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
               <Textarea

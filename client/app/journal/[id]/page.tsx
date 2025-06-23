@@ -23,6 +23,7 @@ import {
   Brain,
   BookOpen,
   Target,
+  ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -70,18 +71,17 @@ export default function EntryPage({
 
   const fetchEntry = async () => {
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
+        {
+          withCredentials: true,
+        }
       );
-      if (response.ok) {
-        console.log("Fetched entry data:", response);
-        const data = await response.json();
-        setEntry(data);
-        const formatted = await formatContent(data.journal_content);
-        setFormattedContent(formatted);
-      } else {
-        router.push("/dashboard");
-      }
+      console.log("Fetched entry data:", response);
+      const data = await response.data;
+      setEntry(data);
+      const formatted = await formatContent(data.journal_content);
+      setFormattedContent(formatted);
     } catch (error) {
       console.error("Error fetching entry:", error);
       router.push("/dashboard");
@@ -93,15 +93,10 @@ export default function EntryPage({
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`,
-          {
-            method: "DELETE",
-          }
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`
         );
-        if (response.ok) {
-          router.push("/dashboard");
-        }
+        router.push("/dashboard");
       } catch (error) {
         console.error("Error deleting entry:", error);
       }
@@ -190,73 +185,171 @@ export default function EntryPage({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
-        <div className="mb-6">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
+        {entry.image_url ? (
+          <div className="relative h-96 overflow-hidden">
+            <img
+              src={entry.image_url || "/placeholder.svg"}
+              alt={entry.journal_title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-                {capitalize(entry.journal_title)}
-              </h1>
-
-              <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 mb-4">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  Created: {formatDate(entry.created_at)}
-                </div>
-                {entry.updated_at !== entry.created_at && (
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    Updated: {formatDate(entry.updated_at)}
-                  </div>
-                )}
-              </div>
-
-              {entry.journal_tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {entry.journal_tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+            {/* Back button overlay */}
+            <div className="absolute top-6 left-6">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center px-4 py-2 bg-white/90 hover:bg-white text-slate-900 rounded-lg transition-colors backdrop-blur-sm"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Link>
             </div>
 
-            <div className="flex gap-2">
+            {/* Action buttons overlay */}
+            <div className="absolute top-6 right-6 flex gap-2">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleSummarize}
                 disabled={isSummarizing}
+                className="bg-white/90 hover:bg-white text-slate-900"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
                 {isSummarizing ? "Summarizing..." : "AI Summary"}
               </Button>
               <Link href={`/journal/${entry.uuid}/edit`}>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="bg-white/90 hover:bg-white text-slate-900"
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </Button>
               </Link>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleDelete}
-                className="text-red-600 hover:text-red-700"
+                className="bg-red-500/90 hover:bg-red-500 text-white"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
             </div>
+
+            {/* Title and metadata overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-8">
+              <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                  {entry.journal_title}
+                </h1>
+
+                <div className="flex items-center gap-6 text-white/90 mb-4">
+                  <div className="flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Created: {formatDate(entry.created_at)}
+                  </div>
+                  {entry.updated_at !== entry.created_at && (
+                    <div className="flex items-center">
+                      <Clock className="h-5 w-5 mr-2" />
+                      Updated: {formatDate(entry.updated_at)}
+                    </div>
+                  )}
+                </div>
+
+                {entry.journal_tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {entry.journal_tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 border-b">
+            <div className="max-w-4xl mx-auto p-8">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Link>
+
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
+                    {entry.journal_title}
+                  </h1>
+
+                  <div className="flex items-center gap-6 text-slate-600 dark:text-slate-300 mb-4">
+                    <div className="flex items-center">
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Created: {formatDate(entry.created_at)}
+                    </div>
+                    {entry.updated_at !== entry.created_at && (
+                      <div className="flex items-center">
+                        <Clock className="h-5 w-5 mr-2" />
+                        Updated: {formatDate(entry.updated_at)}
+                      </div>
+                    )}
+                  </div>
+
+                  {entry.journal_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {entry.journal_tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center text-slate-500 dark:text-slate-400 text-sm">
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    <span>No featured image</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSummarize}
+                    disabled={isSummarizing}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isSummarizing ? "Summarizing..." : "AI Summary"}
+                  </Button>
+                  <Link href={`/journal/${entry.uuid}/edit`}>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         <Card>
@@ -311,15 +404,15 @@ export default function EntryPage({
             {summaryData && !isSummarizing && (
               <>
                 {/* AI Summary with Typing Effect */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-y-auto h-[70vh] rounded-lg border border-blue-200 dark:border-blue-800 scrollbar-hide">
-                    {/* <div className="prose dark:prose-invert max-w-none"> */}
-                    <TypingAnimation
-                      text={summaryData}
-                      // speed={5}
-                      onComplete={() => setTypingComplete(true)}
-                    />
-                    {/* </div> */}
-                  </div>
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-y-auto h-[70vh] rounded-lg border border-blue-200 dark:border-blue-800 scrollbar-hide">
+                  {/* <div className="prose dark:prose-invert max-w-none"> */}
+                  <TypingAnimation
+                    text={summaryData}
+                    // speed={5}
+                    onComplete={() => setTypingComplete(true)}
+                  />
+                  {/* </div> */}
+                </div>
 
                 {typingComplete && (
                   <div className="flex justify-end">

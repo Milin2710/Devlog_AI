@@ -51,17 +51,11 @@ export default function DashboardPage() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`,
-          {
-            method: "DELETE",
-          }
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`
         );
-        if (response.ok) {
-          fetchEntries();
-
-          setEntries(entries.filter((entry) => entry.id !== id));
-        }
+        fetchEntries();
+        setEntries(entries.filter((entry) => entry.id !== id));
       } catch (error) {
         console.error("Error deleting entry:", error);
       }
@@ -184,27 +178,39 @@ export default function DashboardPage() {
           </div>
         </div>
 
-                {/* Quick Actions */}
+        {/* Quick Actions */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Quick Actions</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              Quick Actions
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link href="/dashboard/calendar">
-              <Button variant="outline" className="w-full justify-start h-auto p-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto p-4"
+              >
                 <Calendar className="h-5 w-5 mr-3" />
                 <div className="text-left">
                   <div className="font-medium">View Calendar</div>
-                  <div className="text-sm text-slate-500">See your activity throughout the year</div>
+                  <div className="text-sm text-slate-500">
+                    See your activity throughout the year
+                  </div>
                 </div>
               </Button>
             </Link>
             <Link href="/dashboard/new">
-              <Button variant="outline" className="w-full justify-start h-auto p-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start h-auto p-4"
+              >
                 <Plus className="h-5 w-5 mr-3" />
                 <div className="text-left">
                   <div className="font-medium">New Entry</div>
-                  <div className="text-sm text-slate-500">Document today's learning</div>
+                  <div className="text-sm text-slate-500">
+                    Document today's learning
+                  </div>
                 </div>
               </Button>
             </Link>

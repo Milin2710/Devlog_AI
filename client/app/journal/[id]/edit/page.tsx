@@ -5,6 +5,7 @@ import { JournalEntryForm } from "@/components/journal-entry-form";
 import type { JournalEntry } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import axios from "axios";
 
 export default function EditEntryPage({
   params,
@@ -22,16 +23,14 @@ export default function EditEntryPage({
 
   const fetchEntry = async () => {
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/journal/${id}`
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`, {
+          withCredentials: true,
+        }
       );
-      if (response.ok) {
-        const data = await response.json();
-        setEntry(data);
-        console.log("Fetched entry data:", data);
-      } else {
-        router.push("/dashboard");
-      }
+      const data = await response.data;
+      setEntry(data);
+      console.log("Fetched entry data:", data);
     } catch (error) {
       console.error("Error fetching entry:", error);
       router.push("/dashboard");

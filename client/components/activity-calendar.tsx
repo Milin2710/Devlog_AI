@@ -260,7 +260,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                       <div className="flex-1">
                         <CardTitle className="text-lg mb-1">
                           <Link
-                            href={`/dashboard/${entry.uuid}`}
+                            href={`/journal/${entry.uuid}`}
                             className="hover:text-blue-600 transition-colors"
                             onClick={() => setSelectedDay(null)}
                           >
@@ -279,7 +279,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                       </div>
                       <div className="flex gap-2">
                         <Link
-                          href={`/dashboard/${entry.uuid}`}
+                          href={`/journal/${entry.uuid}`}
                           onClick={() => setSelectedDay(null)}
                         >
                           <Button variant="outline" size="sm">
@@ -288,7 +288,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                           </Button>
                         </Link>
                         <Link
-                          href={`/dashboard/${entry.uuid}/edit`}
+                          href={`/journal/${entry.uuid}/edit`}
                           onClick={() => setSelectedDay(null)}
                         >
                           <Button variant="outline" size="sm">

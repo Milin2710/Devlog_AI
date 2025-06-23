@@ -40,4 +40,7 @@ export class JournalEntry {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_url?: string | null;
 }

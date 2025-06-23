@@ -125,10 +125,6 @@ export default function SignUpPage() {
             {/* Social Login Buttons */}
             <div className="space-y-3">
               <Button variant="outline" className="w-full" size="lg">
-                <Github className="h-5 w-5 mr-2" />
-                Continue with GitHub
-              </Button>
-              <Button variant="outline" className="w-full" size="lg">
                 <Mail className="h-5 w-5 mr-2" />
                 Continue with Google
               </Button>

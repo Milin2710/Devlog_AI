@@ -290,7 +290,7 @@ export default function LandingPage() {
             Built for YOU. Improves dev + DSA retention. Showcases full-stack +
             AI skills.
           </p>
-          <Link href="/auth">
+          <Link href={user ? "/dashboard/new" : "/auth"}>
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
               {user ? "Create Your Journal" : "Get Started Free"}
             </Button>

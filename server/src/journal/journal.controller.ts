@@ -9,11 +9,16 @@ import {
   Param,
   UseGuards,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { JournalEntry } from './journal.entity';
 import { JournalService } from './journal.service';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { AuthGuard } from '@nestjs/passport';
+import { Express } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 
 @Controller('journal')
 export class JournalController {
@@ -21,7 +26,9 @@ export class JournalController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('create')
+  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
   async createEntry(
+    @UploadedFile() file: Express.Multer.File,
     @Body()
     body: {
       journal_title: string;
@@ -43,6 +50,7 @@ export class JournalController {
       body.created_at || new Date(),
       body.journal_content,
       body.journal_tags,
+      file,
     );
   }
 
@@ -57,8 +65,15 @@ export class JournalController {
     return this.journalService.getAllEntries(request.user.uuid);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':journalid')
-  async getEntry(@Param('journalid') journalid: string) {
+  async getEntry(
+    @Req() request: RequestWithUser,
+    @Param('journalid') journalid: string,
+  ) {
+    if (!request.user) {
+      throw new Error('User not found in request');
+    }
     const entry = await this.journalService.getEntryById(journalid);
     if (!entry) {
       throw new Error('Journal entry not found');
@@ -76,31 +91,35 @@ export class JournalController {
   }
 
   @Put(':journalid')
+  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
   async updateEntry(
     @Param('journalid') journalid: string,
-    @Body()
-    body: {
-      journal_title: string;
-      created_at: Date;
-      journal_content: string;
-      journal_tags: string[];
-    },
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
   ) {
-    const entry = await this.journalService.getEntryById(journalid);
-    if (!entry) {
-      throw new Error('Journal entry not found');
+    const journal_title = body.journal_title;
+    const created_at = body.created_at;
+    const journal_content = body.journal_content;
+    const image_url = body.image_url;
+
+    let tags: string[] = [];
+    try {
+      tags =
+        typeof body.journal_tags === 'string'
+          ? JSON.parse(body.journal_tags)
+          : body.journal_tags;
+    } catch {
+      console.warn('Invalid journal_tags format');
     }
-    entry.journal_title = body.journal_title;
-    entry.created_at = body.created_at;
-    entry.journal_content = body.journal_content;
-    entry.journal_tags = body.journal_tags;
 
     return this.journalService.updateEntry(
       journalid,
-      entry.journal_title,
-      entry.created_at,
-      entry.journal_content,
-      entry.journal_tags,
+      journal_title,
+      new Date(created_at),
+      journal_content,
+      tags,
+      file,
+      image_url,
     );
   }
 }
