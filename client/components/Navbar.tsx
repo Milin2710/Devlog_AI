@@ -25,7 +25,6 @@ export default function Navbar() {
   const { user, setUser } = useAuth();
   const [progress, setProgress] = useState(0);
 
-  // console.log("user", user);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -136,6 +135,52 @@ export default function Navbar() {
           ))}
         </nav>
 
+        {user ? (
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="ml-2"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
+            <Link href="/dashboard">
+              <Button className="hidden md:inline-flex">Dashboard</Button>
+            </Link>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="hidden md:inline-flex"
+            >
+              Logout
+            </Button>
+            {/* </Link> */}
+          </div>
+        ) : (
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="ml-2"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
+            <Link href="/auth">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
+        )}
+
         {/* Mobile Navigation */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">
@@ -166,74 +211,22 @@ export default function Navbar() {
                     {item.name}
                   </Link>
                 ))}
-                <div className="flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className="p-0"
-                  >
-                    {theme === "light" ? (
-                      <Moon className="h-5 w-5" />
-                    ) : (
-                      <Sun className="h-5 w-5" />
-                    )}
-                    <span className="ml-3">
-                      {theme === "light" ? "Dark Mode" : "Light Mode"}
-                    </span>
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => {
+                    setOpen(false);
+                    handleLogout;
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                  )}
+                >
+                  <LogOut className="h-5 w-5" />
+                  Logout
+                </Button>
               </nav>
             </div>
           </SheetContent>
         </Sheet>
-
-        {user ? (
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="ml-2"
-            >
-              {theme === "light" ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
-            </Button>
-            <Link href="/dashboard">
-              <Button className="hidden md:inline-flex">Dashboard</Button>
-            </Link>
-            {/* <Link onClick={handleLogout} href="/auth"> */}
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="hidden md:inline-flex"
-            >
-              Logout
-            </Button>
-            {/* </Link> */}
-          </div>
-        ) : (
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="ml-2"
-            >
-              {theme === "light" ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
-            </Button>
-            <Link href="/auth">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        )}
       </div>
     </header>
   );

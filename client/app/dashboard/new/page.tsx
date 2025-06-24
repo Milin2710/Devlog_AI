@@ -37,6 +37,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { format } from "date-fns";
+import { MarkdownPreview } from "@/components/markdown-preview";
 
 interface JournalEntryFormProps {
   entry?: JournalEntry;
@@ -130,17 +131,10 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
       const response = await axios.post(url, formData, {
         withCredentials: true,
       });
-
-      // if (response.ok) {
       router.push("/dashboard");
       router.refresh();
-      // }
-      // else {
-      //   throw new Error("Failed to save entry")
-      // }
     } catch (error) {
       console.error("Error saving entry:", error);
-      // In a real app, show error toast
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +144,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
   const isFuture = selectedDate > new Date();
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6">
         <Link
           href="/dashboard"
@@ -160,223 +154,236 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
           Back to Dashboard
         </Link>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          {mode === "create" ? "New Journal Entry" : "Edit Entry"}
+          New Journal Entry
         </h1>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {mode === "create" ? "Create Entry" : "Edit Entry"}
-          </CardTitle>
-          <CardDescription>
-            {mode === "create"
-              ? "Document your coding journey, learnings, and breakthroughs"
-              : "Update your journal entry"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="What did you learn today?"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Entry Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !selectedDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? (
-                        format(selectedDate, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => date && setSelectedDate(date)}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Form Section */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Create Entry</CardTitle>
+              <CardDescription>
+                Document your coding journey, learnings, and breakthroughs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="What did you learn today?"
+                      required
                     />
-                  </PopoverContent>
-                </Popover>
-                <p className="text-sm text-slate-500">
-                  {isToday
-                    ? "Creating entry for today"
-                    : isFuture
-                    ? "Future dates are not allowed"
-                    : `Creating entry for ${format(
-                        selectedDate,
-                        "MMMM d, yyyy"
-                      )}`}
-                </p>
-              </div>
-            </div>
-
-            {/* Featured Image Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="featured-image">Featured Image</Label>
-              <div className="space-y-4">
-                {!imagePreview ? (
-                  <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
-                    <input
-                      id="featured-image"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <label htmlFor="featured-image" className="cursor-pointer">
-                      <div className="flex flex-col items-center space-y-2">
-                        <Upload className="h-8 w-8 text-slate-400" />
-                        <div className="text-sm text-slate-600 dark:text-slate-300">
-                          <span className="font-medium text-blue-600 hover:text-blue-500">
-                            Click to upload
-                          </span>{" "}
-                          or drag and drop
-                        </div>
-                        <p className="text-xs text-slate-500">
-                          PNG, JPG, GIF up to 5MB
-                        </p>
-                      </div>
-                    </label>
                   </div>
-                ) : (
-                  <div className="relative">
-                    <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                      <img
-                        src={imagePreview || "/placeholder.svg"}
-                        alt="Featured image preview"
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                  <div className="space-y-2">
+                    <Label>Entry Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={removeImage}
-                          className="opacity-0 hover:opacity-100 transition-opacity"
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !selectedDate && "text-muted-foreground"
+                          )}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? (
+                            format(selectedDate, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
                         </Button>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-                      <div className="flex items-center space-x-2">
-                        <ImageIcon className="h-4 w-4" />
-                        <span>{featuredImage?.name}</span>
-                      </div>
-                      <span>
-                        {featuredImage &&
-                          (featuredImage.size / 1024 / 1024).toFixed(2)}{" "}
-                        MB
-                      </span>
-                    </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => date && setSelectedDate(date)}
+                          disabled={(date) => date > new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <p className="text-sm text-slate-500">
+                      {isToday
+                        ? "Creating entry for today"
+                        : isFuture
+                        ? "Future dates are not allowed"
+                        : `Creating entry for ${format(
+                            selectedDate,
+                            "MMMM d, yyyy"
+                          )}`}
+                    </p>
                   </div>
-                )}
-              </div>
-              <p className="text-sm text-slate-500">
-                Add a featured image to make your journal entry more visual and
-                engaging
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your journal entry here... You can use Markdown formatting!"
-                className="min-h-[400px] font-mono"
-                required
-              />
-              <p className="text-sm text-slate-500">
-                Tip: You can use Markdown formatting (# headers, **bold**,
-                `code`, etc.)
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Add a tag..."
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && (e.preventDefault(), addTag())
-                  }
-                />
-                <Button
-                  type="button"
-                  onClick={addTag}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-red-600"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
                 </div>
-              )}
-            </div>
 
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isLoading}>
-                <Save className="h-4 w-4 mr-2" />
-                {isLoading
-                  ? "Saving..."
-                  : mode === "create"
-                  ? "Create Entry"
-                  : "Update Entry"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                {/* Featured Image Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="featured-image">Featured Image</Label>
+                  <div className="space-y-4">
+                    {!imagePreview ? (
+                      <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
+                        <input
+                          id="featured-image"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="featured-image"
+                          className="cursor-pointer"
+                        >
+                          <div className="flex flex-col items-center space-y-2">
+                            <Upload className="h-8 w-8 text-slate-400" />
+                            <div className="text-sm text-slate-600 dark:text-slate-300">
+                              <span className="font-medium text-blue-600 hover:text-blue-500">
+                                Click to upload
+                              </span>{" "}
+                              or drag and drop
+                            </div>
+                            <p className="text-xs text-slate-500">
+                              PNG, JPG, GIF up to 5MB
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                          <img
+                            src={imagePreview || "/placeholder.svg"}
+                            alt="Featured image preview"
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={removeImage}
+                              className="opacity-0 hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+                          <div className="flex items-center space-x-2">
+                            <ImageIcon className="h-4 w-4" />
+                            <span>{featuredImage?.name}</span>
+                          </div>
+                          <span>
+                            {featuredImage &&
+                              (featuredImage.size / 1024 / 1024).toFixed(
+                                2
+                              )}{" "}
+                            MB
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Add a featured image to make your journal entry more visual
+                    and engaging
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="content">Content</Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => {
+                      setContent(e.target.value);
+                    }}
+                    placeholder="Write your journal entry here... You can use Markdown formatting!"
+                    className="min-h-[400px] font-mono resize-none"
+                    required
+                  />
+                  <p className="text-sm text-slate-500">
+                    Tip: You can use Markdown formatting (# headers, **bold**,
+                    `code`, etc.)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tags</Label>
+                  <div className="flex gap-2 mb-2">
+                    <Input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="Add a tag..."
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && (e.preventDefault(), addTag())
+                      }
+                    />
+                    <Button
+                      type="button"
+                      onClick={addTag}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="flex items-center gap-1"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="ml-1 hover:text-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button type="submit" disabled={isLoading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isLoading
+                      ? "Saving..."
+                      : mode === "create"
+                      ? "Create Entry"
+                      : "Update Entry"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.back()}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Preview Section */}
+        <div className="lg:sticky lg:top-6 lg:h-fit">
+          <MarkdownPreview content={content} />
+        </div>
+      </div>
     </div>
   );
 }
