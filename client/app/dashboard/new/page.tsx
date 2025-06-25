@@ -32,6 +32,8 @@ import {
   ImageIcon,
   Trash2,
   Upload,
+  BrainCircuit,
+  Loader,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -54,6 +56,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingtags, setLoadingtags] = useState(false);
 
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -137,6 +140,33 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
       console.error("Error saving entry:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateTags = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingtags(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/autotag`,
+        {
+          markdownText: content,
+        }
+      );
+      console.log("data: ", response.data);
+      const rawTags: string[] = response.data.tags;
+
+      const cleanedTags = rawTags
+        .map((tag) => tag.replace(/^\*\s+/, ""))
+        .map((tag) => tag.replace(/%/g, " ").trim())
+        .slice(1);
+
+      setTags(cleanedTags);
+      console.log("cleaned tags: ", cleanedTags);
+    } catch {
+      console.error("ERROR generating tags");
+    } finally {
+      setLoadingtags(false);
     }
   };
 
@@ -333,6 +363,15 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
                       size="sm"
                     >
                       <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={generateTags}
+                      variant="secondary"
+                      className="bg-[#03469b] text-white hover:bg-[#0761d1]"
+                      size="sm"
+                    >
+                      {loadingtags ? <Loader /> : <BrainCircuit />}
                     </Button>
                   </div>
                   {tags.length > 0 && (
