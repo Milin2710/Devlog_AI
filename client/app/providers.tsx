@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideNavbarRoutes = ["/demo"];
+  const hideNavbarRoutes = ["/demo", "/terms", "/privacy"];
   const shouldShowNavbar = !hideNavbarRoutes.includes(pathname);
   return (
     <AuthProvider>

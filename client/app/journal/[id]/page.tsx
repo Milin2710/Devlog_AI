@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { TypingAnimation } from "@/components/typing-animation";
+import TypingAnimation from "@/components/typing-animation";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { JournalEntry } from "@/lib/types";
 import {
   ArrowLeft,
@@ -21,9 +27,11 @@ import {
   Clock,
   Sparkles,
   Brain,
-  BookOpen,
-  Target,
+  MoreVertical,
   ImageIcon,
+  Eye,
+  Download,
+  ArrowBigDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,6 +50,7 @@ import rehypePrettyCode from "rehype-pretty-code";
 import { transformerCopyButton } from "@rehype-pretty/transformers";
 import axios from "axios";
 import { set } from "date-fns";
+import html2pdf from "html2pdf.js";
 
 interface SummaryData {
   summary: string;
@@ -63,6 +72,9 @@ export default function EntryPage({
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
+  const [downloadsum, setDownloadsum] = useState(false);
+  const pdfRef = useRef<HTMLDivElement>(null);
+  const pdfSumRef = useRef<HTMLDivElement>(null);
 
   console.log("Rendering EntryPage for ID:", id);
   useEffect(() => {
@@ -125,6 +137,34 @@ export default function EntryPage({
     return file.toString();
   };
 
+  const handleDownload = () => {
+    if (!pdfRef.current) return;
+
+    const opt = {
+      margin: 0.5,
+      filename: `${entry.journal_title}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    };
+
+    html2pdf().set(opt).from(pdfRef.current).save();
+  };
+
+  const handleDownloadSummary = () => {
+    if (!pdfSumRef.current) return;
+
+    const opt = {
+      margin: 0.5,
+      filename: `${entry.journal_title} Summary.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    };
+
+    html2pdf().set(opt).from(pdfSumRef.current).save();
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -151,8 +191,6 @@ export default function EntryPage({
     );
   }
 
-  console.log("Journal Content:", entry.journal_content);
-
   function handleSummarize() {
     setIsSummarizing(true);
     setShowSummary(true);
@@ -166,18 +204,17 @@ export default function EntryPage({
       })
       .then(async (response) => {
         console.log("Summarized content:", response.data);
-        // setSummaryData(response.data.summary);
-        // setFormattedContent(response.data.summary);
         const formatted = await formatContent(response.data.summary);
         setSummaryData(response.data.summary);
+        setIsSummarizing(false);
       })
       .catch((error) => {
         console.error(
           "Error summarizing content:",
           error?.response?.data || error.message
         );
+        setIsSummarizing(false);
       });
-    setIsSummarizing(false);
   }
   // console.log("Formatted Content:", formattedContent);
 
@@ -198,10 +235,9 @@ export default function EntryPage({
             <div className="absolute top-6 left-6">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-4 py-2 bg-white/90 hover:bg-white text-slate-900 rounded-lg transition-colors backdrop-blur-sm"
+                className="inline-flex items-center justify-center bg-white/90 hover:bg-white text-slate-900 rounded-lg transition-colors backdrop-blur-sm h-9 w-9"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                <ArrowLeft className="h-5 w-5" />
               </Link>
             </div>
 
@@ -210,32 +246,63 @@ export default function EntryPage({
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={handleSummarize}
+                onClick={() => {
+                  handleSummarize();
+                  setIsSummarizing(true);
+                }}
                 disabled={isSummarizing}
                 className="bg-white/90 hover:bg-white text-slate-900"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
                 {isSummarizing ? "Summarizing..." : "AI Summary"}
               </Button>
-              <Link href={`/journal/${entry.uuid}/edit`}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="bg-white/90 hover:bg-white text-slate-900"
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </Link>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleDelete}
-                className="bg-red-500/90 hover:bg-red-500 text-white"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 bg-white/90 hover:bg-white text-slate-900"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  {/* Download */}
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleDownload();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Download className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span className="text-sm">Download</span>
+                  </DropdownMenuItem>
+
+                  {/* Edit */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/journal/${entry.uuid}/edit`}
+                      className="flex items-center w-full text-sm cursor-pointer"
+                    >
+                      <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {/* Delete */}
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleDelete();
+                    }}
+                    className="cursor-pointer text-red-600 focus:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                    <span className="text-sm">Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Title and metadata overlay */}
@@ -279,10 +346,9 @@ export default function EntryPage({
             <div className="max-w-4xl mx-auto p-8">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors"
+                className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors h-9 w-9 justify-center"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                <ArrowLeft className="h-5 w-5" />
               </Link>
 
               <div className="flex items-start justify-between">
@@ -324,27 +390,62 @@ export default function EntryPage({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleSummarize}
+                    onClick={() => {
+                      handleSummarize();
+                      setIsSummarizing(true);
+                    }}
                     disabled={isSummarizing}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
                     {isSummarizing ? "Summarizing..." : "AI Summary"}
                   </Button>
-                  <Link href={`/journal/${entry.uuid}/edit`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 w-9 p-0 bg-white/90 hover:bg-white text-slate-900"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      {/* Download */}
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDownload();
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Download className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="text-sm">Download</span>
+                      </DropdownMenuItem>
+
+                      {/* Edit */}
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/journal/${entry.uuid}/edit`}
+                          className="flex items-center w-full text-sm cursor-pointer"
+                        >
+                          <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
+
+                      {/* Delete */}
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDelete();
+                        }}
+                        className="cursor-pointer text-red-600 focus:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                        <span className="text-sm">Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
@@ -354,18 +455,11 @@ export default function EntryPage({
         {/* Content */}
         <Card>
           <CardContent className="p-8">
-            {/* <ReactMarkdown
-              remarkPlugins={[remarkBreaks]}
-              // rehypePlugins={[rehypeHighlight]}
-            >
-              {entry.journal_content}
-            </ReactMarkdown> */}
             <div
               className="prose dark:prose-invert max-w-none"
+              ref={pdfRef}
               dangerouslySetInnerHTML={{ __html: formattedContent }}
-            >
-              {/* {formatContent(entry.journal_content)} */}
-            </div>
+            ></div>
           </CardContent>
         </Card>
       </div>
@@ -405,17 +499,26 @@ export default function EntryPage({
               <>
                 {/* AI Summary with Typing Effect */}
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-y-auto h-[70vh] rounded-lg border border-blue-200 dark:border-blue-800 scrollbar-hide">
-                  {/* <div className="prose dark:prose-invert max-w-none"> */}
                   <TypingAnimation
+                    ref={pdfSumRef}
                     text={summaryData}
                     // speed={5}
                     onComplete={() => setTypingComplete(true)}
                   />
-                  {/* </div> */}
                 </div>
 
-                {typingComplete && (
-                  <div className="flex justify-end">
+                {!isSummarizing && (
+                  <div className="flex justify-end gap-4">
+                    {typingComplete && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleDownloadSummary}
+                      >
+                        <Download className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="text-sm">Download</span>
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
