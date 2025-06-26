@@ -58,7 +58,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
       {entry.image_url ? (
         <div className="relative h-48 overflow-hidden">
           <img
-            src={entry.image_url || "/placeholder.svg"}
+            src={entry.image_url}
             alt={entry.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -69,30 +69,36 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white dark:bg-[#0a0a0a] dark:hover:bg-black dark:text-white"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/journal/${entry.uuid}`}>
+                  <Link
+                    href={`/journal/${entry.uuid}`}
+                    className="cursor-pointer"
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/journal/${entry.uuid}/edit`}>
+                  <Link
+                    href={`/journal/${entry.uuid}/edit`}
+                    className="cursor-pointer"
+                  >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-red-600"
+                  className="text-red-600 cursor-pointer"
                   onClick={() => onDelete?.(entry.uuid)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  <span>Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -135,25 +141,35 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white dark:bg-[#0a0a0a] dark:hover:bg-black dark:text-white"
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/journal/${entry.uuid}`}>
+                  <Link
+                    href={`/journal/${entry.uuid}`}
+                    className="cursor-pointer"
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/journal/${entry.uuid}/edit`}>
+                  <Link
+                    href={`/journal/${entry.uuid}/edit`}
+                    className="cursor-pointer"
+                  >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-red-600"
+                  className="text-red-600 cursor-pointer hover:text-white hover:bg-red-700"
                   onClick={() => onDelete?.(entry.uuid)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -166,24 +182,39 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
       )}
       <CardContent>
         {!entry.image_url && (
-          <p className="text-slate-600 dark:text-slate-300 mb-3 line-clamp-3">
+          <p className="text-slate-600 dark:text-slate-300 mb-6 line-clamp-3">
             {getPreview(entry.journal_content)}
           </p>
         )}
 
         {entry.image_url && (
-          <p className="text-slate-600 dark:text-slate-300 mb-3 line-clamp-2 text-sm">
+          <p className="text-slate-600 dark:text-slate-300 mb-3 line-clamp-2 text-sm mt-4">
             {getPreview(entry.journal_content)}
           </p>
         )}
         {entry.journal_tags && entry.journal_tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {entry.journal_tags.slice(0, entry.image_url ? 3 : 5).map((tag) => (
+            {entry.journal_tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
             ))}
+            {entry.journal_tags.length > 3 ? (
+              <Badge variant="outline" className="text-xs">
+                +&nbsp;
+                {entry.journal_tags.length > 3
+                  ? entry.journal_tags.length - 3
+                  : ""}
+              </Badge>
+            ) : (
+              <></>
+            )}
           </div>
+        )}
+        {entry.journal_tags.length === 0 && (
+          <Badge variant="outline" className="text-xs italic">
+            No tags
+          </Badge>
         )}
         {!entry.image_url && (
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">

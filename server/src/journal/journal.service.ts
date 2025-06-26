@@ -37,9 +37,6 @@ export class JournalService {
     journal_tags: string[],
     file?: Express.Multer.File | UploadedImageFile,
   ): Promise<JournalEntry> {
-    console.log(
-      `Creating journal entry for user: ${author_email} (${author_uuid})`,
-    );
     if (typeof journal_tags === 'string') {
       try {
         journal_tags = JSON.parse(journal_tags);
@@ -94,18 +91,15 @@ export class JournalService {
   }
 
   async getEntryById(journalid: string): Promise<JournalEntry | null> {
-    // console.log(`Looking for journal entry with uuid = ${journalid}`);
 
     const entry = await this.journalRepository.findOne({
       where: { uuid: journalid },
     });
 
-    // console.log('Fetched journal entry:', entry);
     return entry;
   }
 
   async deleteEntry(journalid: string): Promise<boolean> {
-    console.log(`Deleting journal entry with uuid = ${journalid}`);
     const result = await this.journalRepository.delete({ uuid: journalid });
     return !!result.affected; // or !!result.affected
   }
@@ -125,8 +119,6 @@ export class JournalService {
       console.error(`Journal entry with uuid = ${journalid} not found`);
       return null;
     }
-
-    console.log(`Updating journal entry with uuid = ${created_at}`);
 
     // Upload if new file
     if (file) {

@@ -33,8 +33,6 @@ export class AutotagService {
         },
       );
 
-      //   console.log('Gemini response:', response.data);
-
       const fullText: string =
         response.data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || '';
 

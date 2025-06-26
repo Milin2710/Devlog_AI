@@ -49,14 +49,6 @@ export default function SignUpPage() {
     }
 
     try {
-      console.log("Submitting signup form", {
-        firstname,
-        lastname,
-        email,
-        password,
-        confirmPassword,
-        termsAccepted,
-      });
       const response = await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/signup",
         {

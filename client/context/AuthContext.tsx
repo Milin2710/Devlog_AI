@@ -20,9 +20,8 @@ export function AuthProvider({ children }) {
           }
         );
         setUser(response.data);
-        console.log("userrr", response.data);
       } catch (error) {
-        console.log("Error fetching user:", error);
+        console.error("Error fetching user:", error);
       }
     }
     fetchUser();

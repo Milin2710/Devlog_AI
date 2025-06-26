@@ -13,19 +13,55 @@ import {
   Tags,
   Calendar,
   ArrowLeft,
+  Badge,
+  Flame,
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [allEntries, setAllEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   useEffect(() => {
     fetchEntries();
   }, []);
+
+  function calculateStreakFromEntries(
+    entries: { created_at: string | Date }[] = []
+  ): number {
+    if (!Array.isArray(entries)) return 0;
+
+    const dateSet = new Set(
+      entries.map((entry) => {
+        const date =
+          typeof entry.created_at === "string"
+            ? new Date(entry.created_at)
+            : entry.created_at;
+        return date.toLocaleDateString("en-CA");
+      })
+    );
+
+    let streak = 0;
+    let currentDate = new Date();
+
+    while (true) {
+      const dateString = currentDate.toLocaleDateString("en-CA");
+
+      if (dateSet.has(dateString)) {
+        streak++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
 
   const fetchEntries = async () => {
     try {
@@ -35,12 +71,10 @@ export default function DashboardPage() {
           withCredentials: true,
         }
       );
-      // if (response.ok) {
       const data = await response.data;
       setEntries(data);
       setAllEntries(data);
-      console.log("Fetched entries:", data);
-      // }
+      setCurrentStreak(calculateStreakFromEntries(data));
     } catch (error) {
       console.error("Error fetching entries:", error);
     } finally {
@@ -99,6 +133,19 @@ export default function DashboardPage() {
     return entryDate >= weekAgo;
   }).length;
 
+  const getStreakColor = () => {
+    if (currentStreak === 0) return "text-slate-500"; // Inactive
+    if (currentStreak === 1) return "text-green-400"; // Just started
+    if (currentStreak === 2) return "text-yellow-400"; // Small push
+    if (currentStreak === 3) return "text-orange-400"; // Getting serious
+    if (currentStreak <= 5) return "text-orange-500"; // Short streak
+    if (currentStreak <= 7) return "text-amber-600"; // One week
+    if (currentStreak <= 10) return "text-red-500"; // Hot streak
+    if (currentStreak <= 15) return "text-pink-500"; // Commitment
+    if (currentStreak <= 20) return "text-fuchsia-600"; // Consistent
+    return "text-purple-700"; // Legendary (30+)
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -126,12 +173,23 @@ export default function DashboardPage() {
                 Track your learning journey and coding breakthroughs
               </p>
             </div>
-            <Link href="/dashboard/new">
-              <Button size="lg">
-                <Plus className="h-5 w-5 mr-2" />
-                New Entry
-              </Button>
-            </Link>
+            <div className="md:flex gap-12">
+              <div className="flex items-center gap-2 hover:bg-transparent cursor-default font-bold mb-3 md:mb-0">
+                <Flame
+                  className={cn("h-8 w-8", getStreakColor())}
+                  style={{ height: "25px", width: "25px" }}
+                />
+                <span className={cn("text-lg", getStreakColor())}>
+                  {currentStreak}
+                </span>
+              </div>
+              <Link href="/dashboard/new">
+                <Button size="lg">
+                  <Plus className="h-5 w-5 mr-2" />
+                  New Entry
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

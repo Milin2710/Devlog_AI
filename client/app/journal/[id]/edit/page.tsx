@@ -30,7 +30,6 @@ export default function EditEntryPage({
       );
       const data = await response.data;
       setEntry(data);
-      console.log("Fetched entry data:", data);
     } catch (error) {
       console.error("Error fetching entry:", error);
       router.push("/dashboard");

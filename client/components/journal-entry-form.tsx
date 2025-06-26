@@ -39,6 +39,8 @@ import {
   ImageIcon,
   Trash2,
   RefreshCw,
+  BrainCircuit,
+  Loader,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -68,6 +70,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(
     () => new Date(entry.created_at)
   );
+  const [loadingtags, setLoadingtags] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -88,6 +91,32 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
+
+  const generateTags = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingtags(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/autotag`,
+        {
+          markdownText: content,
+        }
+      );
+      const rawTags: string[] = response.data.tags;
+
+      const cleanedTags = rawTags
+        .map((tag) => tag.replace(/^\*\s+/, ""))
+        .map((tag) => tag.replace(/%/g, " ").trim())
+        .map((tag) => (tag.startsWith("- ") ? tag.slice(2) : tag))
+        .slice(1);
+
+      setTags(cleanedTags);
+    } catch {
+      console.error("ERROR generating tags");
+    } finally {
+      setLoadingtags(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,15 +187,6 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
     formData.append("created_at", selectedDate.toISOString());
     formData.append("journal_content", content);
     formData.append("journal_tags", JSON.stringify(tags));
-    console.log("Submitting entry:", {
-      title,
-      selectedDate,
-      content,
-      tags,
-      imageChanged,
-      featuredImage,
-      currentImage,
-    });
     if (imageChanged) {
       if (featuredImage) {
         formData.append("file", featuredImage); // send new file
@@ -451,6 +471,15 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
                       size="sm"
                     >
                       <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={generateTags}
+                      variant="secondary"
+                      className="bg-[#03469b] text-white hover:bg-[#0761d1]"
+                      size="sm"
+                    >
+                      {loadingtags ? <Loader /> : <BrainCircuit />}
                     </Button>
                   </div>
                   <p className="text-sm text-slate-500">

@@ -76,7 +76,6 @@ export default function EntryPage({
   const pdfRef = useRef<HTMLDivElement>(null);
   const pdfSumRef = useRef<HTMLDivElement>(null);
 
-  console.log("Rendering EntryPage for ID:", id);
   useEffect(() => {
     fetchEntry();
   }, [id]);
@@ -89,7 +88,6 @@ export default function EntryPage({
           withCredentials: true,
         }
       );
-      console.log("Fetched entry data:", response);
       const data = await response.data;
       setEntry(data);
       const formatted = await formatContent(data.journal_content);
@@ -203,7 +201,6 @@ export default function EntryPage({
         markdownText,
       })
       .then(async (response) => {
-        console.log("Summarized content:", response.data);
         const formatted = await formatContent(response.data.summary);
         setSummaryData(response.data.summary);
         setIsSummarizing(false);
@@ -216,7 +213,6 @@ export default function EntryPage({
         setIsSummarizing(false);
       });
   }
-  // console.log("Formatted Content:", formattedContent);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -261,7 +257,7 @@ export default function EntryPage({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 w-9 p-0 bg-white/90 hover:bg-white text-slate-900"
+                    className="h-9 w-9 p-0 bg-white/90 hover:bg-white hover:text-black text-slate-900"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
@@ -298,7 +294,7 @@ export default function EntryPage({
                     }}
                     className="cursor-pointer text-red-600 focus:text-red-700"
                   >
-                    <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                    <Trash2 className="h-4 w-4 mr-2" />
                     <span className="text-sm">Delete</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -121,7 +121,6 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
         now.getSeconds(),
         now.getMilliseconds()
       );
-      console.log("FEATURED IMAGE:", featuredImage);
 
       const formData = new FormData();
       formData.append("journal_title", title);
@@ -153,17 +152,15 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
           markdownText: content,
         }
       );
-      console.log("data: ", response.data);
       const rawTags: string[] = response.data.tags;
 
       const cleanedTags = rawTags
         .map((tag) => tag.replace(/^\*\s+/, ""))
         .map((tag) => tag.replace(/%/g, " ").trim())
-        .map((tag) => tag.startsWith("- ") ? tag.slice(2) : tag)
+        .map((tag) => (tag.startsWith("- ") ? tag.slice(2) : tag))
         .slice(1);
 
       setTags(cleanedTags);
-      console.log("cleaned tags: ", cleanedTags);
     } catch {
       console.error("ERROR generating tags");
     } finally {
@@ -400,11 +397,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
                 <div className="flex gap-4 pt-4">
                   <Button type="submit" disabled={isLoading}>
                     <Save className="h-4 w-4 mr-2" />
-                    {isLoading
-                      ? "Saving..."
-                      : mode === "create"
-                      ? "Create Entry"
-                      : "Update Entry"}
+                    Create Entry
                   </Button>
                   <Button
                     type="button"

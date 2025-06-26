@@ -36,8 +36,6 @@ export class SummarizeService {
         },
       );
 
-      console.log('Gemini response:', response.data);
-
       return (
         response.data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || ''
       );
