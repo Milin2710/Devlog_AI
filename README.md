@@ -40,7 +40,7 @@ Think of it as a smarter dev journal that helps you reflect, revisit, and even d
 ## 🧠 Phase 3 – AI Layer
 
 - [x] Summarize entries using GEMINI
-- [ ] Auto-tag entries based on content
+- [x] Auto-tag entries based on content
 - [ ] "What did I learn last month?" insights
 - [ ] Generate blog drafts from journal data
 

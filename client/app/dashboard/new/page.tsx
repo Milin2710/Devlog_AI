@@ -159,6 +159,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
       const cleanedTags = rawTags
         .map((tag) => tag.replace(/^\*\s+/, ""))
         .map((tag) => tag.replace(/%/g, " ").trim())
+        .map((tag) => tag.startsWith("- ") ? tag.slice(2) : tag)
         .slice(1);
 
       setTags(cleanedTags);
