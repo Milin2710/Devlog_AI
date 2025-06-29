@@ -40,6 +40,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { format } from "date-fns";
 import { MarkdownPreview } from "@/components/markdown-preview";
+import { useJournals } from "@/context/JournalContext";
+import { ContentEnhancementButtons } from "@/components/content-enhancement-buttons";
 
 interface JournalEntryFormProps {
   entry?: JournalEntry;
@@ -47,6 +49,7 @@ interface JournalEntryFormProps {
 }
 
 export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
+  const { journals, setJournals } = useJournals();
   const router = useRouter();
   const [title, setTitle] = useState(entry?.title || "");
   const [content, setContent] = useState(entry?.content || "");
@@ -114,6 +117,7 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
     try {
       const url = process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/create";
       const entryDate = new Date(selectedDate);
+      setJournals(null);
       const now = new Date();
       entryDate.setHours(
         now.getHours(),
@@ -337,10 +341,17 @@ export default function NewEntryPage({ entry, mode }: JournalEntryFormProps) {
                     className="min-h-[400px] font-mono resize-none"
                     required
                   />
-                  <p className="text-sm text-slate-500">
-                    Tip: You can use Markdown formatting (# headers, **bold**,
-                    `code`, etc.)
-                  </p>
+                  <div className="flex items-center justify-between flex-col md:flex-row space-y-2 md:space-y-0">
+                    <p className="text-sm text-slate-500">
+                      Tip: You can use Markdown formatting (# headers, **bold**,
+                      `code`, etc.)
+                    </p>
+                    <ContentEnhancementButtons
+                      content={content}
+                      onContentUpdate={setContent}
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

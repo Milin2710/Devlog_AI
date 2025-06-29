@@ -3,16 +3,21 @@
 import { useState, useEffect } from "react";
 import { ActivityCalendar } from "@/components/activity-calendar";
 import type { JournalEntry } from "@/lib/types";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import axios from "axios";
+import { useJournals } from "@/context/JournalContext";
 
 export default function CalendarPage() {
+  const { journals, setJournals } = useJournals();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchEntries();
+    if (!journals || journals.length === 0) {
+      fetchEntries();
+    } else {
+      setEntries(journals);
+      setIsLoading(false);
+    }
   }, []);
 
   const fetchEntries = async () => {
@@ -23,8 +28,8 @@ export default function CalendarPage() {
           withCredentials: true,
         }
       );
-    const data = await response.data;
-    setEntries(data);
+      const data = await response.data;
+      setEntries(data);
     } catch (error) {
       console.error("Error fetching entries:", error);
     } finally {

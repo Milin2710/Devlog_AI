@@ -15,7 +15,7 @@ interface TypingAnimationProps {
 }
 
 const TypingAnimation = forwardRef<HTMLDivElement, TypingAnimationProps>(
-  ({ text, speed = 3, onComplete }, ref) => {
+  ({ text, speed = 1, onComplete }, ref) => {
     const [displayedText, setDisplayedText] = useState("");
     const [currentIndex, setCurrentIndex] = useState(0);
     const internalRef = useRef<HTMLDivElement>(null);

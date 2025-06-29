@@ -59,7 +59,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
       {entry.image_url ? (
         <div className="relative h-48 overflow-hidden">
           <Image
-            alt={entry.title}
+            alt={entry.journal_title}
             src={entry.image_url}
             placeholder="blur"
             blurDataURL={entry.image_url.replace(
@@ -120,9 +120,9 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
               <div className="flex items-center text-white/80 text-sm">
                 <Calendar className="h-4 w-4 mr-1" />
                 {formatDate(entry.created_at)}
-                {entry.updatedAt !== entry.created_at && (
+                {/* {entry.updatedAt !== entry.created_at && (
                   <span className="ml-2 text-xs">(edited)</span>
-                )}
+                )} */}
               </div>
             </Link>
           </div>

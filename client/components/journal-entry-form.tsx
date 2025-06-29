@@ -47,12 +47,15 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { MarkdownPreview } from "@/components/markdown-preview";
 import axios from "axios";
+import { useJournals } from "@/context/JournalContext";
+import { ContentEnhancementButtons } from "./content-enhancement-buttons";
 
 interface JournalEntryFormProps {
   entry: JournalEntry;
 }
 
 export function JournalEntryForm({ entry }: JournalEntryFormProps) {
+  const { journals, setJournals } = useJournals();
   const router = useRouter();
   const [title, setTitle] = useState(entry.journal_title);
   const [content, setContent] = useState(entry.journal_content);
@@ -182,6 +185,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
       setIsLoading(false);
       return;
     }
+    setJournals(null);
     const formData = new FormData();
     formData.append("journal_title", title);
     formData.append("created_at", selectedDate.toISOString());
@@ -447,10 +451,17 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
                     className="min-h-[400px] font-mono"
                     required
                   />
-                  <p className="text-sm text-slate-500">
-                    Tip: You can use Markdown formatting (# headers, **bold**,
-                    `code`, etc.)
-                  </p>
+                  <div className="flex items-center justify-between flex-col md:flex-row space-y-2 md:space-y-0">
+                    <p className="text-sm text-slate-500">
+                      Tip: You can use Markdown formatting (# headers, **bold**,
+                      `code`, etc.)
+                    </p>
+                    <ContentEnhancementButtons
+                      content={content}
+                      onContentUpdate={setContent}
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

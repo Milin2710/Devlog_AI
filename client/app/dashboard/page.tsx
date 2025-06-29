@@ -24,7 +24,6 @@ import { set } from "date-fns";
 
 export default function DashboardPage() {
   const { journals, setJournals } = useJournals();
-
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [allEntries, setAllEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

@@ -9,6 +9,7 @@ import { JournalModule } from './journal/journal.module';
 import { JournalEntry } from './journal/journal.entity';
 import { SummarizeModule } from './summarize/summarize.module';
 import { AutotagModule } from './autotag/autotag.module';
+import { MarkdownModule } from './markdown/markdown.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AutotagModule } from './autotag/autotag.module';
     JournalModule,
     SummarizeModule,
     AutotagModule,
+    MarkdownModule,
   ],
   controllers: [AppController],
   providers: [AppService],
