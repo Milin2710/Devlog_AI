@@ -18,12 +18,12 @@ import { AutotagModule } from './autotag/autotag.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.POSTGRES_URL,
-      // ssl: true,
-      // extra: {
-      //   ssl: {
-      //     rejectUnauthorized: false,
-      //   },
-      // },
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
       entities: [Authentication, JournalEntry],
       synchronize: true,
     }),

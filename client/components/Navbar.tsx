@@ -132,7 +132,7 @@ export default function Navbar() {
         </nav>
 
         {user ? (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 hidden md:flex">
             <Button
               variant="ghost"
               size="icon"
