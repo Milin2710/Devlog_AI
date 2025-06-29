@@ -17,6 +17,7 @@ import {
   Moon,
   Sun,
   Calendar,
+  LogOutIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LoadingBar from "react-top-loading-bar";
@@ -71,11 +72,6 @@ export default function Navbar() {
 
   const navItems = [
     {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
       name: "Calendar",
       href: "/dashboard/calendar",
       icon: Calendar,
@@ -106,7 +102,7 @@ export default function Navbar() {
         progress={progress}
         onLoaderFinished={() => setProgress(0)}
       />
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="max-w-screen-lg mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-2">
             <img className="h-9 w-9" src="/favicon.ico" alt="" />
@@ -150,19 +146,22 @@ export default function Navbar() {
               )}
             </Button>
             <Link href="/dashboard">
-              <Button className="hidden md:inline-flex">Dashboard</Button>
+              <Button className="hidden md:inline-flex">
+                <LayoutDashboard className="h-5 w-5 mr-2" />
+                Dashboard
+              </Button>
             </Link>
             <Button
               onClick={handleLogout}
               variant="outline"
               className="hidden md:inline-flex"
             >
+              <LogOutIcon className="h-5 w-5 mr-2" />
               Logout
             </Button>
-            {/* </Link> */}
           </div>
         ) : (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 hidden md:flex">
             <Button
               variant="ghost"
               size="icon"
@@ -175,58 +174,86 @@ export default function Navbar() {
                 <Sun className="h-5 w-5" />
               )}
             </Button>
-            <Link href="/auth">
+            <Link href="/auth" className="hidden md:inline-flex">
               <Button>Get Started</Button>
             </Link>
           </div>
         )}
 
-        {/* Mobile Navigation */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" aria-label="Menu">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <div className="flex flex-col gap-6 py-6">
-              <div className="flex items-center gap-2">
-                <Code className="h-6 w-6 text-blue-600" />
-                <span className="text-xl font-bold">DEVLOG</span>
+        <div className="flex items-center space-x-6 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="ml-2"
+          >
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Button>
+
+          {/* Mobile Navigation */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon" aria-label="Menu">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <div className="flex flex-col gap-6 py-6">
+                <div className="flex items-center gap-2">
+                  {/* <Code className="h-6 w-6 text-blue-600" /> */}
+                  <img className="h-6 w-6" src="/favicon.ico" alt="" />
+                  <span className="text-xl font-bold">DEVLOG</span>
+                </div>
+                {user ? (
+                  <nav className="flex flex-col gap-4">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors",
+                          isActive(item.href)
+                            ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                            : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.name}
+                      </Link>
+                    ))}
+                    <Button
+                      onClick={() => {
+                        setOpen(false);
+                        handleLogout;
+                      }}
+                      className={cn(
+                        "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-800 dark:hover:bg-slate-100"
+                      )}
+                    >
+                      <LogOut className="h-5 w-5" />
+                      Logout
+                    </Button>
+                  </nav>
+                ) : (
+                  <nav className="flex flex-col gap-4">
+                    <Link
+                      href="/auth"
+                      className="flex justify-center items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors dark:text-black dark:bg-slate-100 hover:bg-slate-700 text-white bg-slate-800 dark:hover:bg-slate-200 "
+                    >
+                      <Plus className="h-5 w-5" />
+                      <span>Get Started</span>
+                    </Link>
+                  </nav>
+                )}
               </div>
-              <nav className="flex flex-col gap-4">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors",
-                      isActive(item.href)
-                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.name}
-                  </Link>
-                ))}
-                <Button
-                  onClick={() => {
-                    setOpen(false);
-                    handleLogout;
-                  }}
-                  className={cn(
-                    "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-                  )}
-                >
-                  <LogOut className="h-5 w-5" />
-                  Logout
-                </Button>
-              </nav>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

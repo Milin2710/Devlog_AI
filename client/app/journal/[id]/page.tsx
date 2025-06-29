@@ -29,28 +29,21 @@ import {
   Brain,
   MoreVertical,
   ImageIcon,
-  Eye,
   Download,
-  ArrowBigDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { use } from "react";
-import ReactMarkdown from "react-markdown";
-import { capitalize } from "lodash";
-import remarkBreaks from "remark-breaks";
 import rehypeDocument from "rehype-document";
 import rehypeFormat from "rehype-format";
 import rehypeStringify from "rehype-stringify";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
-import rehypePrettyCode from "rehype-pretty-code";
-import { transformerCopyButton } from "@rehype-pretty/transformers";
 import axios from "axios";
-import { set } from "date-fns";
 import html2pdf from "html2pdf.js";
+import { useJournals } from "@/context/JournalContext";
 
 interface SummaryData {
   summary: string;
@@ -63,6 +56,7 @@ export default function EntryPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { journals, setJournals } = useJournals();
   const { id } = use(params);
   const router = useRouter();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
@@ -72,13 +66,26 @@ export default function EntryPage({
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
-  const [downloadsum, setDownloadsum] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
   const pdfSumRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchEntry();
-  }, [id]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    const loadEntry = async () => {
+      const journal = journals.find((j) => j.uuid === id);
+      if (!journal) {
+        await fetchEntry();
+      } else {
+        setEntry(journal);
+        const formatted = await formatContent(journal.journal_content);
+        setFormattedContent(formatted);
+        setIsLoading(false);
+      }
+    };
+
+    loadEntry();
+  }, [id, journals]);
 
   const fetchEntry = async () => {
     try {
@@ -89,6 +96,7 @@ export default function EntryPage({
         }
       );
       const data = await response.data;
+      console.log("ENTRIES FETCHED NO CACHING");
       setEntry(data);
       const formatted = await formatContent(data.journal_content);
       setFormattedContent(formatted);
@@ -138,15 +146,22 @@ export default function EntryPage({
   const handleDownload = () => {
     if (!pdfRef.current) return;
 
-    const opt = {
-      margin: 0.5,
-      filename: `${entry.journal_title}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-    };
+    setIsDownloading(true);
+    setTimeout(() => {
+      const opt = {
+        margin: 0.5,
+        filename: `${entry.journal_title}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
 
-    html2pdf().set(opt).from(pdfRef.current).save();
+      html2pdf()
+        .set(opt)
+        .from(pdfRef.current)
+        .save()
+        .then(() => setIsDownloading(false));
+    }, 0);
   };
 
   const handleDownloadSummary = () => {
@@ -451,11 +466,21 @@ export default function EntryPage({
         {/* Content */}
         <Card>
           <CardContent className="p-8">
-            <div
-              className="prose dark:prose-invert max-w-none"
-              ref={pdfRef}
-              dangerouslySetInnerHTML={{ __html: formattedContent }}
-            ></div>
+            <div ref={pdfRef} className="prose dark:prose-invert max-w-none">
+              {isDownloading && entry.image_url && (
+                <img
+                  src={entry.image_url}
+                  alt="Journal header"
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+              )}
+              <div dangerouslySetInnerHTML={{ __html: formattedContent }}></div>
+            </div>
           </CardContent>
         </Card>
       </div>

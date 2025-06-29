@@ -19,8 +19,12 @@ import {
 import Link from "next/link";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import { useJournals } from "@/context/JournalContext";
+import { set } from "date-fns";
 
 export default function DashboardPage() {
+  const { journals, setJournals } = useJournals();
+
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [allEntries, setAllEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +32,14 @@ export default function DashboardPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
 
   useEffect(() => {
-    fetchEntries();
+    if (!journals || journals.length === 0) {
+      fetchEntries();
+    } else {
+      setEntries(journals);
+      setAllEntries(journals);
+      setCurrentStreak(calculateStreakFromEntries(journals));
+      setIsLoading(false);
+    }
   }, []);
 
   function calculateStreakFromEntries(
@@ -72,9 +83,11 @@ export default function DashboardPage() {
         }
       );
       const data = await response.data;
+      setJournals(data);
       setEntries(data);
       setAllEntries(data);
       setCurrentStreak(calculateStreakFromEntries(data));
+      console.log("Fetched nrhtu:", journals);
     } catch (error) {
       console.error("Error fetching entries:", error);
     } finally {
@@ -164,17 +177,17 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-col sm:flex-row">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-center">
                 Your Coding Journal
               </h1>
-              <p className="text-slate-600 dark:text-slate-300 mt-1">
+              <p className="text-slate-600 dark:text-slate-300 mt-1 text-center">
                 Track your learning journey and coding breakthroughs
               </p>
             </div>
-            <div className="md:flex gap-12">
-              <div className="flex items-center gap-2 hover:bg-transparent cursor-default font-bold mb-3 md:mb-0">
+            <div className="flex gap-12 mt-6 sm:mt-0">
+              <div className="flex items-center gap-2 hover:bg-transparent cursor-default font-bold mb-0">
                 <Flame
                   className={cn("h-8 w-8", getStreakColor())}
                   style={{ height: "25px", width: "25px" }}

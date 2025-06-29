@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { capitalize } from "lodash";
+import Image from "next/image";
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
@@ -57,9 +58,16 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
       {/* Featured Image */}
       {entry.image_url ? (
         <div className="relative h-48 overflow-hidden">
-          <img
-            src={entry.image_url}
+          <Image
             alt={entry.title}
+            src={entry.image_url}
+            placeholder="blur"
+            blurDataURL={entry.image_url.replace(
+              "/upload/",
+              "/upload/w_20,q_auto:low/"
+            )}
+            loading="lazy"
+            fill
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

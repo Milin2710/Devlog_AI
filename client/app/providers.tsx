@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import { AuthProvider } from "../context/AuthContext";
+import { JournalProvider } from "../context/JournalContext";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -11,20 +12,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const shouldShowNavbar = !hideNavbarRoutes.includes(pathname);
   return (
     <AuthProvider>
-      {shouldShowNavbar && <Navbar />}
-      {!shouldShowNavbar && (
-        <>
-          <div className="absolute top-4 left-0 z-50 w-full px-4 py-2">
-            <Link href="/" className="flex items-center space-x-2">
-              <img className="h-9 w-9" src="/favicon.ico" alt="" />
-              <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                DEVLOG
-              </span>
-            </Link>
-          </div>
-        </>
-      )}
-      {children}
+      <JournalProvider>
+        {shouldShowNavbar && <Navbar />}
+        {!shouldShowNavbar && (
+          <>
+            <div className="absolute top-4 left-0 z-50 w-full px-4 py-2">
+              <Link href="/" className="flex items-center space-x-2">
+                <img className="h-9 w-9" src="/favicon.ico" alt="" />
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                  DEVLOG
+                </span>
+              </Link>
+            </div>
+          </>
+        )}
+        {children}
+      </JournalProvider>
     </AuthProvider>
   );
 }
