@@ -21,9 +21,11 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LoadingBar from "react-top-loading-bar";
+import { useJournals } from "@/context/JournalContext";
 
 export default function Navbar() {
   const { user, setUser } = useAuth();
+  const { journals, setJournals } = useJournals();
   const [progress, setProgress] = useState(0);
 
   const pathname = usePathname();
@@ -64,6 +66,7 @@ export default function Navbar() {
         { withCredentials: true }
       );
       setUser(null);
+      setJournals([]);
       router.refresh();
     } catch (err) {
       console.error("Logout failed", err);

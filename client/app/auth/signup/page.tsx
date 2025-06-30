@@ -15,10 +15,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Code, Github, Mail, ArrowLeft } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const { setUser } = useAuth();
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
@@ -29,6 +31,40 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useRouter();
+
+  const loginsubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/login",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
+
+      const res = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/user",
+        {
+          withCredentials: true,
+        }
+      );
+      setUser(res.data);
+      // setSuccess("Login successful! Redirecting...");
+      // setTimeout(() => {
+      //   navigate.push("/");
+      // }, 1000);
+    } catch (err) {
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const signupsubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,14 +95,15 @@ export default function SignUpPage() {
         },
         { withCredentials: true }
       );
-      setSuccess("Account created successfully! Please log in.");
+      loginsubmit(e); // Automatically log in after signup
+      setSuccess("Account created successfully! Redirecting to dashboard...");
       setTimeout(() => {
-        setFirstname("");
-        setLastname("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-        navigate.push("/auth");
+        // setFirstname("");
+        // setLastname("");
+        // setEmail("");
+        // setPassword("");
+        // setConfirmPassword("");
+        navigate.push("/dashboard");
       }, 1000);
     } catch (err: any) {
       setError(
