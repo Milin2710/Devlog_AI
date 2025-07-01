@@ -12,23 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { JournalEntry } from "@/lib/types";
 import {
   ArrowLeft,
-  Edit,
-  Trash2,
   Calendar,
   Clock,
   Sparkles,
   Brain,
-  MoreVertical,
   ImageIcon,
   Download,
   Share2,
@@ -45,29 +35,22 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
-import { useJournals } from "@/context/JournalContext";
-import { JournalSharingModal } from "@/components/journal-sharing-modal";
+import { useAuth } from "@/context/AuthContext";
 
-interface SummaryData {
-  summary: string;
-  wordCount: number;
-  readingTime: number;
-}
-
-export default function EntryPage({
+export default function SharedEntryPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { journals, setJournals } = useJournals();
-  const [showSharingModal, setShowSharingModal] = useState(false);
   const { id } = use(params);
+  const { user } = useAuth();
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [formattedContent, setFormattedContent] = useState<string>("");
   const [showSummary, setShowSummary] = useState(false);
-  const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
+  const [summaryData, setSummaryData] = useState(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -76,52 +59,34 @@ export default function EntryPage({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const loadEntry = async () => {
-      const journal = journals.find((j) => j.uuid === id);
-      if (!journal) {
-        await fetchEntry();
-      } else {
-        setEntry(journal);
-        const formatted = await formatContent(journal.journal_content);
-        setFormattedContent(formatted);
-        setIsLoading(false);
-      }
-    };
+    fetchSharedEntry();
+  }, [id]);
 
-    loadEntry();
-  }, [id, journals]);
-
-  const fetchEntry = async () => {
+  const fetchSharedEntry = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/share/${id}`,
         {
           withCredentials: true,
         }
       );
-      const data = await response.data;
-      console.log("ENTRIES FETCHED NO CACHING");
-      setEntry(data);
-      const formatted = await formatContent(data.journal_content);
-      setFormattedContent(formatted);
+      if (response.status === 200) {
+        const data = await response.data;
+        setEntry(data.entry);
+        const formatted = await formatContent(data.entry.journal_content);
+        setFormattedContent(formatted);
+      } else if (response.status === 404) {
+        setError("Entry not found or not shared");
+      } else if (response.status === 403) {
+        setError("You don't have permission to view this entry");
+      } else {
+        setError("Failed to load entry");
+      }
     } catch (error) {
-      console.error("Error fetching entry:", error);
-      router.push("/dashboard");
+      console.error("Error fetching shared entry:", error);
+      setError("Failed to load entry");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      try {
-        const response = await axios.delete(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`
-        );
-        router.push("/dashboard");
-      } catch (error) {
-        console.error("Error deleting entry:", error);
-      }
     }
   };
 
@@ -193,19 +158,52 @@ export default function EntryPage({
     );
   }
 
-  if (!entry) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <Lock className="h-16 w-16 text-slate-300 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-            Entry not found
+            Access Denied
           </h1>
-          <Link href="/dashboard">
-            <Button>Back to Dashboard</Button>
+          <p className="text-slate-600 dark:text-slate-300 mb-6">{error}</p>
+          <Link href="/">
+            <Button>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Go to DEVLOG
+            </Button>
           </Link>
         </div>
       </div>
     );
+  }
+
+  if (!entry) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            Entry not found
+          </h1>
+          <Link href="/">
+            <Button>Go to DEVLOG</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  function guestSummarize() {
+    setIsSummarizing(true);
+    setShowSummary(true);
+    setSummaryData(`
+      <div class="flex items-center justify-center h-64">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-4 text-center">
+      Please log in to summarize this entry.
+      </h1>
+      </div>
+      `);
+    setIsSummarizing(false);
   }
 
   function handleSummarize() {
@@ -236,7 +234,7 @@ export default function EntryPage({
   return (
     <>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-2 sm:p-6">
           {/* Header */}
           {entry.image_url ? (
             <div className="relative h-96 overflow-hidden">
@@ -262,9 +260,15 @@ export default function EntryPage({
                 <Button
                   variant="secondary"
                   size="sm"
+                  className="z-10"
                   onClick={() => {
-                    handleSummarize();
-                    setIsSummarizing(true);
+                    if (user) {
+                      handleSummarize();
+                      setIsSummarizing(true);
+                    } else {
+                      setIsSummarizing(true);
+                      guestSummarize();
+                    }
                   }}
                   disabled={isSummarizing}
                   className="bg-white/90 hover:bg-white text-slate-900"
@@ -274,64 +278,24 @@ export default function EntryPage({
                     {isSummarizing ? "Summarizing..." : "AI Summary"}
                   </span>
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-9 w-9 p-0 bg-white/90 hover:bg-white hover:text-black text-slate-900"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    {/* Download */}
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDownload();
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Download className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span className="text-sm">Download</span>
-                    </DropdownMenuItem>
-                    {/* Edit */}
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={`/journal/${entry.uuid}/edit`}
-                        className="flex items-center w-full text-sm cursor-pointer"
-                      >
-                        <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
-                        Edit
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => setShowSharingModal(true)}
-                      className="cursor-pointer"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDelete();
-                      }}
-                      className="cursor-pointer text-red-600 focus:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      <span className="text-sm">Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button variant="outline" size="sm" onClick={handleDownload}>
+                  <Download className="h-4 w-4 mr-0 text-muted-foreground" />
+                  <span className="hidden sm:inline">Download</span>
+                </Button>
               </div>
 
               {/* Title and metadata overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="max-w-4xl mx-auto">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
+                <div className="max-w-4xl mx-auto p-0 sm:p-8">
+                  <div className="flex items-start justify-between mb-2 sm:mb-6">
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    >
+                      <Share2 className="h-3 w-3 mr-1" />
+                      Shared Journal Entry
+                    </Badge>
+                  </div>
                   <h1 className="text-3xl md:text-5xl sm:4xl font-bold text-white mb-4 leading-tight">
                     {entry.journal_title}
                   </h1>
@@ -347,7 +311,6 @@ export default function EntryPage({
                         Updated: {formatDate(entry.updated_at)}
                       </div>
                     )}
-                    <Badge>{entry.isPublic ? "Public" : "Private"}</Badge>
                   </div>
 
                   {entry.journal_tags.length > 0 && (
@@ -368,7 +331,7 @@ export default function EntryPage({
             </div>
           ) : (
             <div className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 border-b">
-              <div className="max-w-4xl mx-auto p-8">
+              <div className="max-w-4xl mx-auto p-0 sm:p-8">
                 <Link
                   href="/dashboard"
                   className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white mb-6 transition-colors h-9 w-9 justify-center"
@@ -378,6 +341,15 @@ export default function EntryPage({
 
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
+                    <div className="flex items-start justify-between mb-6">
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                      >
+                        <Share2 className="h-3 w-3 mr-1" />
+                        Shared Journal Entry
+                      </Badge>
+                    </div>
                     <h1 className="text-3xl md:text-5xl sm:4xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
                       {entry.journal_title}
                     </h1>
@@ -393,7 +365,6 @@ export default function EntryPage({
                           Updated: {formatDate(entry.updated_at)}
                         </div>
                       )}
-                      <Badge>{entry.isPublic ? "Public" : "Private"}</Badge>
                     </div>
 
                     {entry.journal_tags.length > 0 && (
@@ -415,10 +386,16 @@ export default function EntryPage({
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
+                      className="z-10"
                       size="sm"
                       onClick={() => {
-                        handleSummarize();
-                        setIsSummarizing(true);
+                        if (user) {
+                          handleSummarize();
+                          setIsSummarizing(true);
+                        } else {
+                          setIsSummarizing(true);
+                          guestSummarize();
+                        }
                       }}
                       disabled={isSummarizing}
                     >
@@ -427,61 +404,14 @@ export default function EntryPage({
                         {isSummarizing ? "Summarizing..." : "AI Summary"}
                       </span>
                     </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0 bg-white/90 hover:bg-white text-slate-900"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
-                        {/* Download */}
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            handleDownload();
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Download className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span className="text-sm">Download</span>
-                        </DropdownMenuItem>
-
-                        {/* Edit */}
-                        <DropdownMenuItem asChild>
-                          <Link
-                            href={`/journal/${entry.uuid}/edit`}
-                            className="flex items-center w-full text-sm cursor-pointer"
-                          >
-                            <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => setShowSharingModal(true)}
-                          className="cursor-pointer"
-                        >
-                          <Share2 className="h-4 w-4 mr-2" />
-                          Share
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            handleDelete();
-                          }}
-                          className="cursor-pointer text-red-600 focus:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2 text-red-500" />
-                          <span className="text-sm">Delete</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownload}
+                    >
+                      <Download className="h-4 w-4 mr-0 text-muted-foreground" />
+                      <span className="hidden sm:inline">Download</span>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -546,7 +476,11 @@ export default function EntryPage({
               {summaryData && !isSummarizing && (
                 <>
                   {/* AI Summary with Typing Effect */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-y-auto h-[70vh] rounded-lg border border-blue-200 dark:border-blue-800 scrollbar-hide">
+                  <div
+                    className={`p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-y-auto h-[70vh] rounded-lg border border-blue-200 dark:border-blue-800 scrollbar-hide ${
+                      user ? "h-[70vh]" : "h-[40vh]"
+                    }`}
+                  >
                     <TypingAnimation
                       ref={pdfSumRef}
                       text={summaryData}
@@ -586,11 +520,6 @@ export default function EntryPage({
           </DialogContent>
         </Dialog>
       </div>
-      <JournalSharingModal
-        open={showSharingModal}
-        onOpenChange={setShowSharingModal}
-        entry={entry}
-      />
     </>
   );
 }

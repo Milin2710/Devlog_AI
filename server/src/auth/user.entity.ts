@@ -20,7 +20,7 @@ export class Authentication {
   @Column()
   last_name: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()

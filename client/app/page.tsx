@@ -302,7 +302,7 @@ export default function LandingPage() {
       <footer className="py-12 px-4 bg-slate-900 text-white">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Code className="h-6 w-6 text-blue-400" />
+            <img className="h-6 w-6" src="/favicon.ico" alt="" />
             <span className="text-xl font-bold">DEVLOG</span>
           </div>
           <p className="text-slate-400 mb-4">

@@ -10,6 +10,7 @@ import { JournalEntry } from './journal/journal.entity';
 import { SummarizeModule } from './summarize/summarize.module';
 import { AutotagModule } from './autotag/autotag.module';
 import { MarkdownModule } from './markdown/markdown.module';
+import { ShareModule } from './share/share.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MarkdownModule } from './markdown/markdown.module';
         },
       },
       entities: [Authentication, JournalEntry],
+      autoLoadEntities: true,
       synchronize: true,
     }),
     AuthModule,
@@ -33,6 +35,7 @@ import { MarkdownModule } from './markdown/markdown.module';
     SummarizeModule,
     AutotagModule,
     MarkdownModule,
+    ShareModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JournalEntry } from './journal.entity';
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import * as multer from 'multer';
 import { UploadApiResponse } from 'cloudinary';
 import { Express } from 'express';
 import * as streamifier from 'streamifier';

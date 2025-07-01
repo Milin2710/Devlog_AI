@@ -11,6 +11,7 @@ import {
   Put,
   UploadedFile,
   UseInterceptors,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JournalEntry } from './journal.entity';
 import { JournalService } from './journal.service';
@@ -72,11 +73,16 @@ export class JournalController {
     @Param('journalid') journalid: string,
   ) {
     if (!request.user) {
-      throw new Error('User not found in request');
+      throw new UnauthorizedException('User not found in request');
     }
     const entry = await this.journalService.getEntryById(journalid);
     if (!entry) {
-      throw new Error('Journal entry not found');
+      throw new UnauthorizedException('Journal entry not found');
+    }
+    if (entry.author_uuid !== request.user.uuid) {
+      throw new UnauthorizedException(
+        'Unauthorized access to this journal entry',
+      );
     }
     return entry;
   }
