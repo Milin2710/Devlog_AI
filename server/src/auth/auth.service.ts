@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Authentication } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { BlacklistedToken } from './blacklisted-token.entity';
+import * as nodemailer from 'nodemailer';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -78,4 +80,48 @@ export class AuthService {
       },
     };
   }
+
+  // async forgotPassword(email: string): Promise<string> {
+  //   const user = await this.userRepository.findOne({ where: { email } });
+
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+
+  //   // Generate token
+  //   const token = crypto.randomBytes(32).toString('hex');
+  //   const expiry = new Date(Date.now() + 1000 * 60 * 30); // 30 minutes
+
+  //   // Save token & expiry to DB
+  //   user.resetToken = token;
+  //   user.resetTokenExpiry = expiry;
+  //   await this.userRepository.save(user);
+
+  //   const resetUrl = `https://devlog-ai.vercel.app/reset-password/${token}`;
+
+  //   // Send email
+  //   const transporter = nodemailer.createTransport({
+  //     service: 'gmail', // or use your SMTP service
+  //     auth: {
+  //       user: process.env.EMAIL_FROM,
+  //       pass: process.env.EMAIL_PASS,
+  //     },
+  //   });
+
+  //   const mailOptions = {
+  //     from: `"DEVLOG AI" <${process.env.EMAIL_FROM}>`,
+  //     to: user.email,
+  //     subject: 'Reset your DEVLOG AI password',
+  //     html: `
+  //       <p>You requested to reset your password.</p>
+  //       <p>Click the link below to reset it. This link is valid for 30 minutes.</p>
+  //       <a href="${resetUrl}">${resetUrl}</a>
+  //       <p>If you didn't request this, ignore this email.</p>
+  //     `,
+  //   };
+
+  //   await transporter.sendMail(mailOptions);
+
+  //   return 'Password reset link sent';
+  // }
 }

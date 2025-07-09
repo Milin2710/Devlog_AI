@@ -74,7 +74,7 @@ export default function AuthPage() {
             Back to home
           </Link>
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Code className="h-8 w-8 text-blue-600" />
+            <img className="h-8 w-8" src="/favicon.ico" alt="" />
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
               DEVLOG
             </span>

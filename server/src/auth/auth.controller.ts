@@ -63,7 +63,6 @@ export class AuthController {
     const token = req.cookies['auth-token'];
 
     if (token) {
-
       res.clearCookie('auth-token', {
         httpOnly: true,
         secure: true,
@@ -78,4 +77,13 @@ export class AuthController {
       message: 'You have been logged out successfully',
     });
   }
+
+  // @Post('forgot-password')
+  // async forgotPassword(@Body() body: { email: string }, @Res() res: Response) {
+  //   const result = await this.authService.forgotPassword(body.email);
+  //   return res.status(200).json({
+  //     status: 'success',
+  //     message: result.message,
+  //   });
+  // }
 }
