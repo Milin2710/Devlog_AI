@@ -2,5 +2,7 @@ node_modules/
 .next/
 dist/
 .env
+client/.env
+server/.env
 replacements.txt
 middleware.ts
