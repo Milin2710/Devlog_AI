@@ -149,24 +149,33 @@ export default function EntryPage({
 
   const handleDownload = () => {
     if (!pdfRef.current) return;
-
     setIsDownloading(true);
-    setTimeout(() => {
-      const opt = {
-        margin: 0.5,
-        filename: `${entry.journal_title}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-      };
 
+    // 🔹 Temporarily force light mode styles
+    const originalClass = pdfRef.current.className;
+    pdfRef.current.className = originalClass.replace('dark:prose-invert', '') + ' prose'; // no dark invert
+
+    const opt = {
+      margin: 0.5,
+      filename: `${entry.journal_title}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    };
+
+    setTimeout(() => {
       html2pdf()
         .set(opt)
         .from(pdfRef.current)
         .save()
-        .then(() => setIsDownloading(false));
+        .then(() => {
+          // 🔹 Restore original class after save
+          pdfRef.current!.className = originalClass;
+          setIsDownloading(false);
+        });
     }, 0);
   };
+
 
   const handleDownloadSummary = () => {
     if (!pdfSumRef.current) return;
