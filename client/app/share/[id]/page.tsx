@@ -22,6 +22,7 @@ import {
   ImageIcon,
   Download,
   Share2,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,7 +35,6 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import axios from "axios";
-import html2pdf from "html2pdf.js";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SharedEntryPage({
@@ -66,25 +66,32 @@ export default function SharedEntryPage({
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/share/${id}`,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true },
       );
-      if (response.status === 200) {
-        const data = await response.data;
-        setEntry(data.entry);
-        const formatted = await formatContent(data.entry.journal_content);
-        setFormattedContent(formatted);
-      } else if (response.status === 404) {
-        setError("Entry not found or not shared");
-      } else if (response.status === 403) {
-        setError("You don't have permission to view this entry");
-      } else {
-        setError("Failed to load entry");
-      }
-    } catch (error) {
+
+      const data = response.data;
+
+      setEntry(data.entry);
+      const formatted = await formatContent(data.entry.journal_content);
+      setFormattedContent(formatted);
+    } catch (error: any) {
       console.error("Error fetching shared entry:", error);
-      setError("Failed to load entry");
+
+      if (error.response) {
+        const status = error.response.status;
+
+        if (status === 404) {
+          setError("Entry not found or not shared");
+        } else if (status === 403) {
+          setError("You don't have permission to view this entry");
+        } else if (status === 401) {
+          setError("Please login to view this entry");
+        } else {
+          setError("Failed to load entry");
+        }
+      } else {
+        setError("Network error. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -112,8 +119,10 @@ export default function SharedEntryPage({
     return file.toString();
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!pdfRef.current) return;
+
+    const html2pdf = (await import("html2pdf.js")).default;
 
     setIsDownloading(true);
     setTimeout(() => {
@@ -133,8 +142,9 @@ export default function SharedEntryPage({
     }, 0);
   };
 
-  const handleDownloadSummary = () => {
+  const handleDownloadSummary = async () => {
     if (!pdfSumRef.current) return;
+    const html2pdf = (await import("html2pdf.js")).default;
 
     const opt = {
       margin: 0.5,
@@ -225,7 +235,7 @@ export default function SharedEntryPage({
       .catch((error) => {
         console.error(
           "Error summarizing content:",
-          error?.response?.data || error.message
+          error?.response?.data || error.message,
         );
         setIsSummarizing(false);
       });
@@ -256,7 +266,7 @@ export default function SharedEntryPage({
               </div>
 
               {/* Action buttons overlay */}
-              <div className="absolute top-6 right-6 flex gap-2">
+              <div className="absolute top-6 right-6 flex gap-2 z-10">
                 <Button
                   variant="secondary"
                   size="sm"
@@ -383,7 +393,7 @@ export default function SharedEntryPage({
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 z-10">
                     <Button
                       variant="outline"
                       className="z-10"

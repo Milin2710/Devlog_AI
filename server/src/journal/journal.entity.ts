@@ -44,7 +44,7 @@ export class JournalEntry {
   @Column({ type: 'varchar', nullable: true })
   image_url?: string | null;
 
-  @Column('text', { array: true, nullable: true })
+  @Column('text', { array: true, default: [], nullable: true })
   allowedEmails: string[];
 
   @Column({ default: false })

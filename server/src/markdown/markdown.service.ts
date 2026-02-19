@@ -12,30 +12,23 @@ export class MarkdownService {
       `Keep the original wording exactly as it is.\n\n` +
       `Text:\n\n${markdownText}`;
 
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    };
-
     try {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        requestBody,
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model: 'llama-3.1-8b-instant',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
           },
         },
       );
 
-      const content = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const content = response.data?.choices?.[0]?.message?.content?.trim() || '';
 
       if (!content) {
         throw new Error('No content returned from Gemini API');
@@ -58,30 +51,23 @@ export class MarkdownService {
       `If the content feels like plain paragraphs, structure it better using features like headings, subheadings, bullet points, or numbered lists where suitable.\n\n` +
       `Text:\n\n${markdownText}`;
 
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    };
-
     try {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        requestBody,
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model: 'llama-3.1-8b-instant',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
           },
         },
       );
 
-      const content = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const content = response.data?.choices?.[0]?.message?.content?.trim() || '';
 
       if (!content) {
         throw new Error('No content returned from Gemini API');

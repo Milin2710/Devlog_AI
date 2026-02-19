@@ -44,7 +44,7 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import axios from "axios";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import { useJournals } from "@/context/JournalContext";
 import { JournalSharingModal } from "@/components/journal-sharing-modal";
 
@@ -97,7 +97,7 @@ export default function EntryPage({
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
         {
           withCredentials: true,
-        }
+        },
       );
       const data = await response.data;
       console.log("ENTRIES FETCHED NO CACHING");
@@ -116,7 +116,7 @@ export default function EntryPage({
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
         const response = await axios.delete(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
         );
         router.push("/dashboard");
       } catch (error) {
@@ -147,9 +147,9 @@ export default function EntryPage({
     return file.toString();
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!pdfRef.current) return;
-
+    const html2pdf = (await import("html2pdf.js")).default;
     setIsDownloading(true);
     setTimeout(() => {
       const opt = {
@@ -168,8 +168,9 @@ export default function EntryPage({
     }, 0);
   };
 
-  const handleDownloadSummary = () => {
+  const handleDownloadSummary = async () => {
     if (!pdfSumRef.current) return;
+    const html2pdf = (await import("html2pdf.js")).default;
 
     const opt = {
       margin: 0.5,
@@ -227,7 +228,7 @@ export default function EntryPage({
       .catch((error) => {
         console.error(
           "Error summarizing content:",
-          error?.response?.data || error.message
+          error?.response?.data || error.message,
         );
         setIsSummarizing(false);
       });
@@ -258,7 +259,7 @@ export default function EntryPage({
               </div>
 
               {/* Action buttons overlay */}
-              <div className="absolute top-6 right-6 flex gap-2">
+              <div className="absolute top-6 right-6 flex gap-2 z-40">
                 <Button
                   variant="secondary"
                   size="sm"
@@ -412,7 +413,7 @@ export default function EntryPage({
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 z-10">
                     <Button
                       variant="outline"
                       size="sm"

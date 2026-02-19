@@ -1,116 +1,244 @@
-# 🧠 DEVLOG AI
+# 🧠 DEVLOG AI  
+### A Personal Coding Journal with AI-Powered Refinement
+---
+## ✨ What is DEVLOG AI?
 
-Your Personal Coding Journal with AI Superpowers  
-[Live Demo](https://devlog-ai.vercel.app/) • Frontend on Vercel • Backend & Database on Render
+DEVLOG AI is a full-stack web application that helps developers transform messy daily coding notes into structured, searchable, and AI-refined knowledge.
+
+## 🔗 Live Demo
+https://devlog-ai.vercel.app/
+
+## 🧪 Demo Access
+
+You may create a temporary account, or use:
+
+Email: demo@devlog.ai  
+Password: demo123
+
+## 🧰 Built With
+
+Next.js · NestJS · PostgreSQL · TypeORM · Gemini API · Cloudinary · JWT Auth
 
 ---
 
-## 🎯 What Is DEVLOG AI?
+It’s designed around a simple loop:
 
-DEVLOG AI is a personal web app that transforms your daily coding notes, bugs, breakthroughs, and brainstorms into an organized, searchable journal—augmented by AI. Think of it as a smarter dev diary that helps you reflect, tag, summarize, and even draft polished blog posts from your own logs.
+> Capture → Refine → Organize → Reuse
+
+Instead of scattered notes across tools, DEVLOG AI turns:
+- Raw debugging logs → structured Markdown
+- Rough thoughts → improved writing
+- Daily entries → searchable knowledge base
+- Logs → exportable summaries
+
+This project focuses on clean architecture, AI integration, and production-style deployment.
 
 ---
 
-## 🚀 Features
+## 📸 Screenshots
 
-### Core & Utility (MVP → Phase 2)
-- **Authentication** (email/password, OAuth)
-- **Journal CRUD** (add, edit, delete)
-- **Markdown & Plain-Text**  
-  - Write in plain text or Markdown  
-  - **“Convert to Markdown”** → pop-up compares original vs. AI-generated Markdown; accept/regenerate/copy/close  
-  - Live side-by-side preview (mobile: stacked view)
-- **Grammar & Structure Improvement**  
-  - **“Improve Writing”** → opens a pop-up with AI suggestions; accept/regenerate/copy/close  
-- **Tag Management**  
-  - Auto-generate tags via Gemini  
-  - Add/delete unlimited tags (flat list, index preserved)
-- **Search**  
-  - Full-text search across titles, tags, content  
-  - Always shows up-to-date results
-- **Stats**  
-  - Weekly/monthly entry counts  
-  - GitHub-style calendar heatmap (darker color = more entries)
-  - Streak counter (consecutive days with ≥ 1 entry, including today)
-- **Theme Toggle** (light/dark; persisted in `localStorage`)
+### Dashboard
+![Dashboard](./readme-assets/dashboard.png)
 
-### AI Layer (Phase 3)
-- **Auto-Summaries**  
-  - Generate an AI summary per journal entry  
-  - Download summary as PDF (via html2pdf.js; includes featured image)
-- **Blog Draft Generation** (coming soon)
+### Journal Editor
+![Editor](./readme-assets/editjournal.png)
 
-### Media & Export (Phase 4)
-- **Featured Images**  
-  - Upload any size image; stored in Cloudinary  
-  - Automatically optimized by Cloudinary
-- **PDF Export**  
-  - Download full entry as PDF (Markdown → HTML → PDF via html2pdf.js)
-- **Drafts & Sharing**  
-  - (Upcoming) Save as draft for later edits  
-  - (Upcoming) Public or user-specific shareable links
+### AI Summary
+![AI Summary](./readme-assets/summary.png)
+
+### Sharing Controls
+![Sharing](./readme-assets/sharejournal.png)
+
+---
+
+## 🏗 System Architecture
+
+### High-Level Flow
+
+1. **Next.js (App Router)** handles UI rendering and client interactions.
+2. API requests are sent to a **NestJS backend (REST API)**.
+3. Backend:
+   - Handles authentication & validation
+   - Interacts with PostgreSQL via TypeORM
+   - Calls Gemini API for AI features
+4. Media uploads are stored and optimized using Cloudinary.
+5. PDF exports are generated client-side (HTML → PDF pipeline).
+
+### 🔐 Authorization & Sharing Model
+
+- Public access links generated per entry
+- AI summaries gated behind authenticated sessions
+- Email-based access control stored in PostgreSQL
+- Backend-level permission enforcement (unauthorized users cannot fetch restricted entries)
+- Resource-level access validation on every request
+
+---
+
+## 🚀 Core Features
+
+### 📝 Journal Engine
+- Create, edit, delete journal entries
+- Markdown + plain-text writing support
+- Live preview (split view on desktop)
+- Full-text search across:
+  - Title
+  - Content
+  - Tags
+- GitHub-style activity heatmap
+- Streak tracking logic
+
+---
+
+### 🤖 AI Features (Backend-Proxied)
+
+All AI requests are routed through the backend to:
+- Protect API keys
+- Control usage
+- Maintain clean separation of concerns
+
+Features include:
+
+- **Convert to Markdown**
+  - Plain text → structured Markdown
+  - Side-by-side comparison modal
+
+- **Improve Writing**
+  - Grammar + clarity enhancement
+
+- **Auto Tag Generation**
+  - Context-aware tag suggestions
+
+- **Entry Summarization**
+  - AI-generated summary per entry
+  - Exportable as PDF
+
+---
+
+### 🖼 Media & Export
+- Featured image uploads (Cloudinary auto-optimization)
+- Entry → HTML → PDF export
+- Summary → downloadable PDF
+- Persistent light/dark theme
 
 ---
 
 ## 🧱 Tech Stack
 
-- **Frontend:** Next.js (App Router) · Tailwind CSS · shadcn/ui  
-- **Backend:** NestJS · TypeORM · PostgreSQL (Render) · Redis  
-- **AI Integration:** Gemini API  
-- **Storage & Hosting:**  
-  - Frontend on Vercel  
-  - Backend & Postgres on Render  
-  - Images on Cloudinary
+### Frontend
+- Next.js (App Router)
+- React
+- Tailwind CSS
+- shadcn/ui
+
+### Backend
+- NestJS
+- TypeORM
+- PostgreSQL
+
+### AI & Media
+- Gemini API
+- Cloudinary
 
 ---
 
-## 🧪 Local Setup
+## 🗄 Database Design
 
-1. **Clone & Install**
-   ```bash
-   git clone https://github.com/Milin2710/Devlog_AI
-   cd devlog-ai
-   ```
+Relational schema designed for scalability and future collaboration features.
 
-2. Environment Variables
-   Create a .env file in both client/ and server/:
+Core tables:
 
-   ```env
-   # client/.env
-   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
-   NEXT_PUBLIC_CLOUDINARY_URL=your_cloudinary_url
+- `users`
+- `journal_entries`
+- `tags`
+- `entry_tags` (many-to-many relation)
+- `summaries`
 
-   # server/.env
-   DATABASE_URL=postgres://user:pass@host:port/dbname
-   REDIS_URL=redis://host:port
-   GEMINI_API_KEY=your_gemini_key
-   CLOUDINARY_URL=your_cloudinary_url
-   ```
+---
 
-3. Run Locally
+## 🔐 Security & Engineering Decisions
 
-   ```bash
-   # In client/
-   npm install
-   npm run dev
+- JWT-based authentication
+- Password hashing with bcrypt
+- Server-side AI API key protection
+- Environment-based configuration
+- DTO validation via NestJS pipes
+- Clean separation: controller → service → repository layers
 
-   # In server/
-   npm install
-   npm run start
-   ```
+---
 
-4. Open http://localhost:3000 in your browser.
+## ⚡ Performance Considerations
+
+- Indexed Postgres queries for search
+- Efficient relational joins (TypeORM)
+- Cloudinary CDN optimization
+- Client-side rendering optimizations with Next.js App Router
+- Minimized unnecessary re-renders in React components
+
+---
+
+## 📦 Local Development
+
+### 1️⃣ Clone
+
+```bash
+git clone https://github.com/Milin2710/Devlog_AI
+cd Devlog_AI
+```
+### 2️⃣ Environment Variables
+
+Create .env in both client/ and server/.
+
+#### client/.env
+```
+NEXT_PUBLIC_CLOUDINARY_URL=your_cloudinary_url
+```
+#### server/.env
+```
+DATABASE_URL=postgres://user:pass@host:port/dbname
+GEMINI_API_KEY=your_gemini_key
+CLOUDINARY_URL=your_cloudinary_url
+JWT_SECRET=your_secret
+```
+### 3️⃣ Run Locally
+```
+# client
+npm install
+npm run dev
+
+# server
+npm install
+npm run start:dev
+```
+Visit → http://localhost:3000
 
 ## 📈 Roadmap
-### Phase 5
 
-- Public/private share links (per-user access)
-- Collaboration & user roles
-- Blog-draft templating & export
-- Community
-- Contribution guidelines & changelog
-- Add CI/build and coverage badges
+- Role-based permission tiers (viewer/editor)
+- AI-powered blog draft generation
+- Prompt customization panel
+- CI/CD integration
+- Automated testing coverage
 
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome!
-Feel free to open a PR or issue in the repo.
+---
+
+## 🧠 Engineering Highlights
+
+- Modular NestJS architecture
+- Resource-level authorization
+- AI request proxying for key security
+- Relational modeling with scalable join tables
+- Deployment split: Vercel (frontend) + Render (backend)
+
+---
+
+## 🎯 Why This Project Matters
+
+DEVLOG AI demonstrates:
+
+- End-to-end full-stack system design
+- Production-style deployment architecture
+- Backend authorization & resource-level access control
+- Secure AI integration via server proxy
+- Relational data modeling with scalability in mind
+
+It reflects a product-first engineering approach rather than a tutorial-style CRUD application.

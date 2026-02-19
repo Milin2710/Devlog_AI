@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JournalEntry } from 'src/journal/journal.entity';
 import { Repository } from 'typeorm';
@@ -36,9 +36,9 @@ export class ShareService {
       where: { uuid: journalid },
     });
     if (!entry) {
-      throw new Error('Journal entry not found or not shared');
+      throw new ForbiddenException('Journal entry not found or not shared');
     }
-    if (entry.isPublic || entry.allowedEmails.includes(useremail)) {
+    if (entry.isPublic || entry.allowedEmails?.includes(useremail)) {
       return entry;
     }
     if (entry.author_email === useremail) {

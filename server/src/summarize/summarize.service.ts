@@ -4,43 +4,41 @@ import axios from 'axios';
 @Injectable()
 export class SummarizeService {
   async summarizeMarkdown(markdownText: string): Promise<string> {
-    const prompt =
-      `You are an assistant that reads markdown content and summarizes it in well-structured HTML for display in a web application.\n\n` +
-      `- The summary should be concise and capture the main points.\n` +
-      `- Use proper HTML tags like <h2>, <p>, <ul>, <li>, <strong>, etc.\n` +
-      `- Avoid wrapping the whole output in a <div>.\n` +
-      `- DO NOT use <pre> or <code> tags.\n` +
-      `- DO NOT return markdown — only clean, valid HTML.\n\n` +
-      `Summarize the following markdown content:\n\n${markdownText}`;
+    const prompt = `
+You are an assistant that reads markdown content and summarizes it in well-structured HTML for display in a web application.
 
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `${prompt}\n\n${markdownText}`,
-            },
-          ],
-        },
-      ],
-    };
+- The summary should be concise and capture the main points.
+- Use proper HTML tags like <h2>, <p>, <ul>, <li>, <strong>, etc.
+- Avoid wrapping the whole output in a <div>.
+- DO NOT use <pre> or <code> tags.
+- DO NOT return markdown — only clean, valid HTML.
+
+Summarize the following markdown content:
+
+${markdownText}
+`;
 
     try {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        requestBody,
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.3,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
           },
         },
       );
 
-      return (
-        response.data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || ''
-      );
+      return response.data?.choices?.[0]?.message?.content?.trim() || '';
     } catch (error) {
-      console.error('❌ Gemini API error:', error?.response?.data || error);
+      console.error('❌ Groq API error:', error?.response?.data || error);
       throw new Error('Failed to summarize markdown');
     }
   }

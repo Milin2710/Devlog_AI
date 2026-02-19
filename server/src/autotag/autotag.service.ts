@@ -8,33 +8,27 @@ export class AutotagService {
       `You are an expert in generating relevant tags for markdown content.\n\n` +
       `- Analyze the content and extract key themes, topics, or concepts.\n` +
       `- Generate 4 to 6 concise, descriptive tags that accurately represent the content.\n` +
-      `- Each tag should be of one, two or three words separated by '%'.\n\n` +
+      `- Each tag should be of one, two or three words separated by '%' and don't index them just write the tag.\n\n` +
       `Generate tags for the following markdown content:\n\n${markdownText}`;
 
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `${prompt}\n\n${markdownText}`,
-            },
-          ],
-        },
-      ],
-    };
     try {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        requestBody,
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model: 'llama-3.1-8b-instant',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
           },
         },
       );
 
       const fullText: string =
-        response.data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || '';
+        response.data?.choices?.[0]?.message?.content?.trim() || '';
 
       const lines = fullText.split('\n');
 

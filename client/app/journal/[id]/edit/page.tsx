@@ -17,6 +17,7 @@ export default function EditEntryPage({
   const router = useRouter();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     fetchEntry();
   }, [id]);
@@ -24,9 +25,10 @@ export default function EditEntryPage({
   const fetchEntry = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`, {
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
+        {
           withCredentials: true,
-        }
+        },
       );
       const data = await response.data;
       setEntry(data);
