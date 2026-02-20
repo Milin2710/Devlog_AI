@@ -176,7 +176,7 @@ export function JournalSharingModal({
     try {
       await navigator.clipboard.writeText(
         process.env.NEXT_PUBLIC_CORS_ORIGIN +
-          "/share/" +
+          "/share" +
           originalSettings.journalid
       );
       setCopied(true);
@@ -331,7 +331,7 @@ export function JournalSharingModal({
                     <Input
                       value={
                         process.env.NEXT_PUBLIC_CORS_ORIGIN +
-                        "/share/" +
+                        "/share" +
                         originalSettings.journalid
                       }
                       readOnly
@@ -361,7 +361,7 @@ export function JournalSharingModal({
                       onClick={() =>
                         window.open(
                           process.env.NEXT_PUBLIC_CORS_ORIGIN +
-                            "/share/" +
+                            "/share" +
                             originalSettings.journalid,
                           "_blank"
                         )
