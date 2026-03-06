@@ -20,12 +20,15 @@ import { ShareModule } from './share/share.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.POSTGRES_URL,
-      ssl: true,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      },
+      ssl: process.env.NODE_ENV === 'production',
+      extra:
+        process.env.NODE_ENV === 'production'
+          ? {
+              ssl: {
+                rejectUnauthorized: false,
+              },
+            }
+          : {},
       entities: [Authentication, JournalEntry],
       autoLoadEntities: true,
       synchronize: true,

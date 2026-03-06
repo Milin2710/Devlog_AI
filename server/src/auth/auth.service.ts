@@ -81,6 +81,40 @@ export class AuthService {
     };
   }
 
+  async googleLogin(email: string, name: string) {
+    let user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      const [first_name, ...rest] = name.split(' ');
+      const last_name = rest.join(' ');
+      user = this.userRepository.create({
+        first_name,
+        last_name,
+        email,
+        password: '',
+      });
+      await this.userRepository.save(user);
+    }
+
+    const payload = {
+      email: user.email,
+      uuid: user.uuid,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+    };
+    const token = this.jwtService.sign(payload);
+    return {
+      token,
+      user: {
+        email: user.email,
+        uuid: user.uuid,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      },
+    };
+  }
+
   // async forgotPassword(email: string): Promise<string> {
   //   const user = await this.userRepository.findOne({ where: { email } });
 

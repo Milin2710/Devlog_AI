@@ -78,6 +78,24 @@ export class AuthController {
     });
   }
 
+  @Post('google')
+  async googleLogin(
+    @Body() body: { email: string; name: string },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.googleLogin(body.email, body.name);
+
+    // Set the token as an HTTP-only cookie
+    response.cookie('auth-token', result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
+    return result;
+  }
+
   // @Post('forgot-password')
   // async forgotPassword(@Body() body: { email: string }, @Res() res: Response) {
   //   const result = await this.authService.forgotPassword(body.email);

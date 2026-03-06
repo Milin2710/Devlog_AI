@@ -18,6 +18,7 @@ import { Code, Github, Mail, ArrowLeft } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react"
 
 export default function SignUpPage() {
   const { setUser } = useAuth();
@@ -153,7 +154,7 @@ export default function SignUpPage() {
           <CardContent className="space-y-4">
             {/* Social Login Buttons */}
             <div className="space-y-3">
-              <Button variant="outline" className="w-full" size="lg">
+              <Button variant="outline" className="w-full" size="lg" onClick={() => signIn("google")}>
                 <Mail className="h-5 w-5 mr-2" />
                 Continue with Google
               </Button>

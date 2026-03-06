@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Code, Github, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react"
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
@@ -100,7 +101,7 @@ export default function AuthPage() {
           <CardContent className="space-y-4">
             {/* Social Login Buttons */}
             <div className="space-y-3">
-              <Button variant="outline" className="w-full" size="lg">
+              <Button variant="outline" className="w-full" size="lg" onClick={() => signIn("google")}>
                 <Mail className="h-5 w-5 mr-2" />
                 Continue with Google
               </Button>
