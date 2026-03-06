@@ -22,6 +22,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LoadingBar from "react-top-loading-bar";
 import { useJournals } from "@/context/JournalContext";
+import { signOut } from "next-auth/react"
 
 export default function Navbar() {
   const { user, setUser } = useAuth();
@@ -67,6 +68,7 @@ export default function Navbar() {
       );
       setUser(null);
       setJournals([]);
+      signOut();
       router.refresh();
     } catch (err) {
       console.error("Logout failed", err);
