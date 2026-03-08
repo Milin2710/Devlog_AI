@@ -278,8 +278,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-
-
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto text-center max-w-3xl">
@@ -312,6 +310,17 @@ export default function LandingPage() {
           </p>
           <p className="text-sm text-slate-500">
             © 2025 DEVLOG. Built with passion for developers.
+          </p>
+          <p className="text-sm text-slate-500">
+            <Link href="/privacy" className="underline hover:text-slate-300">
+              Privacy Policy
+            </Link>
+            <Link
+              href="https://github.com/Milin2710/Devlog_AI"
+              className="underline hover:text-slate-300 ml-4"
+            >
+              GitHub
+            </Link>
           </p>
         </div>
       </footer>

@@ -92,3 +92,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+p img {
+  @apply rounded-md border;
+  height: auto;
+  width: 100%;
+  @media screen and (min-width: 768px) {
+    height: auto;
+    width: 60%;
+  }
+  @media screen and (max-width: 850px) and (min-width: 768px) {
+    height: auto;
+    width: 75%;
+  }
+}

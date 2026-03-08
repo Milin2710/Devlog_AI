@@ -14,11 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Code, Github, Mail, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react"
+import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function SignUpPage() {
   const { setUser } = useAuth();
@@ -46,14 +47,14 @@ export default function SignUpPage() {
           email,
           password,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       const res = await axios.get(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/user",
         {
           withCredentials: true,
-        }
+        },
       );
       setUser(res.data);
       // setSuccess("Login successful! Redirecting...");
@@ -94,7 +95,7 @@ export default function SignUpPage() {
           email,
           password,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       loginsubmit(e); // Automatically log in after signup
       setSuccess("Account created successfully! Redirecting to dashboard...");
@@ -108,7 +109,7 @@ export default function SignUpPage() {
       }, 1000);
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "An error occurred. Please try again."
+        err.response?.data?.message || "An error occurred. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -154,8 +155,19 @@ export default function SignUpPage() {
           <CardContent className="space-y-4">
             {/* Social Login Buttons */}
             <div className="space-y-3">
-              <Button variant="outline" className="w-full" size="lg" onClick={() => signIn("google")}>
-                <Mail className="h-5 w-5 mr-2" />
+              <Button
+                variant="outline"
+                className="w-full"
+                size="lg"
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+              >
+                <Image
+                  src="/google.svg"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                  className="mr-2"
+                />
                 Continue with Google
               </Button>
             </div>

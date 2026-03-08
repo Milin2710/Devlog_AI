@@ -25,9 +25,9 @@ export default function AuthLoader() {
       );
 
       setUser(result.data);
-      setTimeout(() => {
-        navigate.push("/");
-      }, 500);
+      // setTimeout(() => {
+      //   navigate.push("/");
+      // }, 500);
     };
 
     loginUser();

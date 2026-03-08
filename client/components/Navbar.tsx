@@ -22,7 +22,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LoadingBar from "react-top-loading-bar";
 import { useJournals } from "@/context/JournalContext";
-import { signOut } from "next-auth/react"
+import { signOut } from "next-auth/react";
 
 export default function Navbar() {
   const { user, setUser } = useAuth();
@@ -64,7 +64,7 @@ export default function Navbar() {
       await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/auth/logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setUser(null);
       setJournals([]);
@@ -127,7 +127,7 @@ export default function Navbar() {
                 "flex items-center gap-2 text-sm font-medium transition-colors",
                 isActive(item.href)
                   ? "text-blue-600 dark:text-blue-400"
-                  : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function Navbar() {
                           "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors",
                           isActive(item.href)
                             ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                            : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                            : "hover:bg-slate-100 dark:hover:bg-slate-800",
                         )}
                       >
                         <item.icon className="h-5 w-5" />
@@ -232,12 +232,9 @@ export default function Navbar() {
                       </Link>
                     ))}
                     <Button
-                      onClick={() => {
-                        setOpen(false);
-                        handleLogout;
-                      }}
+                      onClick={handleLogout}
                       className={cn(
-                        "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-800 dark:hover:bg-slate-100"
+                        "flex items-center gap-3 px-2 py-2 text-base font-medium rounded-md transition-colors hover:bg-slate-800 dark:hover:bg-slate-100",
                       )}
                     >
                       <LogOut className="h-5 w-5" />

@@ -14,6 +14,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Privacy Policy - DEVLOG",
+};
+
 export default function PrivacyPage() {
   const lastUpdated = "June 2, 2025";
 
@@ -514,16 +518,6 @@ export default function PrivacyPage() {
             Your privacy is fundamental to how we build and operate DEVLOG.
             Thank you for trusting us with your coding journey.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/terms">
-              <Button variant="outline" size="sm">
-                Terms & Conditions
-              </Button>
-            </Link>
-            <Link href="/auth">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </div>
         </div>
       </div>
     </div>

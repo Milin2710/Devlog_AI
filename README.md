@@ -17,7 +17,7 @@ Password: demo123
 
 ## 🧰 Built With
 
-Next.js · NestJS · PostgreSQL · TypeORM · Gemini API · Cloudinary · JWT Auth
+Next.js · NestJS · PostgreSQL · TypeORM · Gemini/Groq API · Cloudinary · JWT Auth
 
 ---
 
@@ -136,7 +136,7 @@ Features include:
 - PostgreSQL
 
 ### AI & Media
-- Gemini API
+- Gemini API / Groq API
 - Cloudinary
 
 ---
@@ -149,8 +149,6 @@ Core tables:
 
 - `users`
 - `journal_entries`
-- `tags`
-- `entry_tags` (many-to-many relation)
 - `summaries`
 
 ---
@@ -195,9 +193,17 @@ NEXT_PUBLIC_CLOUDINARY_URL=your_cloudinary_url
 #### server/.env
 ```
 DATABASE_URL=postgres://user:pass@host:port/dbname
-GEMINI_API_KEY=your_gemini_key
-CLOUDINARY_URL=your_cloudinary_url
 JWT_SECRET=your_secret
+POSTGRES_URL = postgres://user_example:password_example@localhost:5432/database_example
+GEMINI_API_KEY = key_example_1234567890
+GEMINI_URL = url_example_1234567890
+CLOUDINARY_CLOUD_NAME = name_example_1234567890
+CLOUDINARY_API_KEY = key_example_1234567890
+CLOUDINARY_API_SECRET = secret_example_1234567890
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GROQ_API_KEY=your_groq_api_key_here
+NODE_ENV=development
 ```
 ### 3️⃣ Run Locally
 ```
@@ -207,7 +213,7 @@ npm run dev
 
 # server
 npm install
-npm run start:dev
+npm start
 ```
 Visit → http://localhost:3000
 
@@ -242,3 +248,7 @@ DEVLOG AI demonstrates:
 - Relational data modeling with scalability in mind
 
 It reflects a product-first engineering approach rather than a tutorial-style CRUD application.
+
+---
+
+© 2026 Devlog AI. All rights reserved.

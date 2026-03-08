@@ -5,7 +5,11 @@ import Navbar from "@/components/Navbar";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "DEVLOG | Log your coding journey",
+  title: {
+    default: "Devlog AI | Log your coding journey",
+    template: "%s | Devlog AI",
+  },
+
   description: "Milin Sharma",
   icons: {
     icon: "/favicon.ico",
