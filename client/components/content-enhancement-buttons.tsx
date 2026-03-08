@@ -121,8 +121,7 @@ export function ContentEnhancementButtons({
     }
   };
 
-  const generateMarkdownFormat = async (text: string): string => {
-    // console.log("Formatting markdown:", text);
+  const generateMarkdownFormat = async (text: string) => {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/format",
       {
@@ -145,7 +144,7 @@ export function ContentEnhancementButtons({
     return data.summary;
   };
 
-  const generateImprovedWording = async (text: string): string => {
+  const generateImprovedWording = async (text: string) => {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/improvewording",
       {
@@ -160,7 +159,6 @@ export function ContentEnhancementButtons({
       throw new Error("Failed to format markdown");
     }
     const data = await response.json();
-    // console.log("Formatted markdown response:", data.improvedWording);
     if (data.improvedWording.startsWith("```markdown")) {
       return data.improvedWording
         .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")

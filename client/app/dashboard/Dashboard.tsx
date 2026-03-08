@@ -27,6 +27,40 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
 
+  const fetchEntries = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/all",
+        {
+          withCredentials: true,
+        },
+      );
+      const data = await response.data;
+      const formattedData: JournalEntry[] = data.map((entry: any) => ({
+        id: entry.uuid,
+        userId: entry.userId,
+        title: entry.journal_title,
+        content: entry.journal_content,
+        media: entry.media || [],
+        tags: entry.journal_tags,
+        createdAt: entry.created_at,
+        updatedAt: entry.updated_at,
+        image_url: entry.image_url,
+        isPublic: entry.isPublic,
+        allowedEmails: entry.allowed_emails || [],
+      }));
+
+      setJournals(formattedData);
+      setEntries(formattedData);
+      setAllEntries(formattedData);
+      setCurrentStreak(calculateStreakFromEntries(formattedData));
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!journals || journals.length === 0) {
       fetchEntries();
@@ -36,19 +70,20 @@ export default function Dashboard() {
       setCurrentStreak(calculateStreakFromEntries(journals));
       setIsLoading(false);
     }
-  }, []);
+  }, [journals]);
 
   function calculateStreakFromEntries(
-    entries: { created_at: string | Date }[] = [],
+    entries: { createdAt: string | Date }[] = [],
   ): number {
+    // console.log("Calculating streak from entries:", entries);
     if (!Array.isArray(entries)) return 0;
 
     const dateSet = new Set(
       entries.map((entry) => {
         const date =
-          typeof entry.created_at === "string"
-            ? new Date(entry.created_at)
-            : entry.created_at;
+          typeof entry.createdAt === "string"
+            ? new Date(entry.createdAt)
+            : entry.createdAt;
         return date.toLocaleDateString("en-CA");
       }),
     );
@@ -70,27 +105,6 @@ export default function Dashboard() {
     return streak;
   }
 
-  const fetchEntries = async () => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/all",
-        {
-          withCredentials: true,
-        },
-      );
-      const data = await response.data;
-      setJournals(data);
-      setEntries(data);
-      setAllEntries(data);
-      setCurrentStreak(calculateStreakFromEntries(data));
-      console.log("Fetched nrhtu:", journals);
-    } catch (error) {
-      console.error("Error fetching entries:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this entry?")) {
       try {
@@ -107,9 +121,9 @@ export default function Dashboard() {
 
   const filteredEntries = entries.filter(
     (entry) =>
-      entry.journal_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.journal_content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.journal_tags.some((tag) =>
+      entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.tags.some((tag) =>
         tag.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
   );
@@ -122,9 +136,9 @@ export default function Dashboard() {
       setEntries(
         allEntries.filter(
           (entry) =>
-            entry.journal_title.toLowerCase().includes(query.toLowerCase()) ||
-            entry.journal_content.toLowerCase().includes(query.toLowerCase()) ||
-            entry.journal_tags.some((tag) =>
+            entry.title.toLowerCase().includes(query.toLowerCase()) ||
+            entry.content.toLowerCase().includes(query.toLowerCase()) ||
+            entry.tags.some((tag) =>
               tag.toLowerCase().includes(query.toLowerCase()),
             ),
         ),
@@ -133,10 +147,9 @@ export default function Dashboard() {
   };
 
   const totalEntries = entries.length;
-  const totalTags = [...new Set(entries.flatMap((entry) => entry.journal_tags))]
-    .length;
+  const totalTags = [...new Set(entries.flatMap((entry) => entry.tags))].length;
   const thisWeekEntries = entries.filter((entry) => {
-    const entryDate = new Date(entry.created_at);
+    const entryDate = new Date(entry.createdAt);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return entryDate >= weekAgo;

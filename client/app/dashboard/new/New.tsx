@@ -42,6 +42,8 @@ import { format } from "date-fns";
 import { MarkdownPreview } from "@/components/markdown-preview";
 import { useJournals } from "@/context/JournalContext";
 import { ContentEnhancementButtons } from "@/components/content-enhancement-buttons";
+import { MediaUpload } from "@/components/media-upload";
+import type { MediaFile } from "@/lib/types";
 
 interface JournalEntryFormProps {
   entry?: JournalEntry;
@@ -60,6 +62,7 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingtags, setLoadingtags] = useState(false);
+  const [media, setMedia] = useState<MediaFile[]>(entry?.media || []);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,6 +75,13 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
     });
   }, [content]);
 
+  useEffect(() => {
+    media.forEach((file) => {
+      if (file.url) return;
+      file.url = URL.createObjectURL(file.file);
+    });
+  }, [media]);
+
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
       setTags([...tags, newTag.trim()]);
@@ -82,6 +92,8 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
+
+  useEffect(() => {});
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -145,6 +157,13 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
       if (featuredImage) {
         formData.append("file", featuredImage);
       }
+      formData.append(
+        "media",
+        JSON.stringify(media.map(({ file, ...rest }) => rest)),
+      );
+      media.forEach((m) => {
+        formData.append("mediaFiles", m.file);
+      });
       const response = await axios.post(url, formData, {
         withCredentials: true,
       });
@@ -340,6 +359,18 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
                     </p>
                   </div>
 
+                  <MediaUpload
+                    media={media}
+                    onMediaAdd={setMedia}
+                    onMediaRemove={(id) =>
+                      setMedia(media.filter((m) => m.id !== id))
+                    }
+                    onInsertMarkdown={(markdown) => {
+                      setContent((prev) => prev + "\n" + markdown);
+                    }}
+                    disabled={isLoading}
+                  />
+
                   <div className="space-y-2">
                     <Label htmlFor="content">Content</Label>
                     <Textarea
@@ -440,7 +471,7 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
               className="sticky top-6 h-full overflow-y-auto"
               ref={previewRef}
             >
-              <MarkdownPreview content={content} />
+              <MarkdownPreview content={content} mediaFiles={media} />
             </div>
           </div>
         </div>

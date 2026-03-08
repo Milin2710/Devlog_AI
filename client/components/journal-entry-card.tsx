@@ -57,7 +57,8 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
       : plainText;
   };
 
-  const capitalizeFirst = str => str.charAt(0).toUpperCase() + str.slice(1);
+  const capitalizeFirst = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
 
   return (
     <>
@@ -66,12 +67,12 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
         {entry.image_url ? (
           <div className="relative h-48 overflow-hidden">
             <Image
-              alt={entry.journal_title}
+              alt={entry.title}
               src={entry.image_url}
               placeholder="blur"
               blurDataURL={entry.image_url.replace(
                 "/upload/",
-                "/upload/w_20,q_auto:low/"
+                "/upload/w_20,q_auto:low/",
               )}
               loading="lazy"
               fill
@@ -92,7 +93,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/journal/${entry.uuid}`}
+                      href={`/journal/${entry.id}`}
                       className="cursor-pointer"
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -101,7 +102,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/journal/${entry.uuid}/edit`}
+                      href={`/journal/${entry.id}/edit`}
                       className="cursor-pointer"
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -119,7 +120,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-red-600 cursor-pointer"
-                    onClick={() => onDelete?.(entry.uuid)}
+                    onClick={() => onDelete?.(entry.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     <span>Delete</span>
@@ -129,14 +130,14 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
             </div>
             {/* Title overlay on image */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
-              <Link href={`/journal/${entry.uuid}`} className="block">
+              <Link href={`/journal/${entry.id}`} className="block">
                 <h3 className="text-white font-bold text-lg mb-1 line-clamp-2 hover:text-blue-200 transition-colors">
-                  {capitalizeFirst(entry.journal_title)}
+                  {capitalizeFirst(entry.title)}
                 </h3>
                 <div className="flex items-center text-white/80 text-sm">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {formatDate(entry.created_at)}
-                  {/* {entry.updatedAt !== entry.created_at && (
+                  {formatDate(entry.createdAt)}
+                  {/* {entry.updatedAt !== entry.createdAt && (
                   <span className="ml-2 text-xs">(edited)</span>
                 )} */}
                 </div>
@@ -149,16 +150,16 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
               <div className="flex-1">
                 <CardTitle className="text-lg mb-1 line-clamp-2">
                   <Link
-                    href={`/journal/${entry.uuid}`}
+                    href={`/journal/${entry.id}`}
                     className="hover:text-blue-600 transition-colors"
                   >
-                    {capitalizeFirst(entry.journal_title)}
+                    {capitalizeFirst(entry.title)}
                   </Link>
                 </CardTitle>
                 <CardDescription className="flex items-center text-sm">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {formatDate(entry.created_at)}
-                  {/* {entry.updated_at !== entry.created_at && (
+                  {formatDate(entry.createdAt)}
+                  {/* {entry.updated_at !== entry.createdAt && (
                   <span className="ml-2 text-xs">(edited)</span>
                 )} */}
                 </CardDescription>
@@ -176,7 +177,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/journal/${entry.uuid}`}
+                      href={`/journal/${entry.id}`}
                       className="cursor-pointer"
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -185,7 +186,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/journal/${entry.uuid}/edit`}
+                      href={`/journal/${entry.id}/edit`}
                       className="cursor-pointer"
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -203,7 +204,7 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-red-600 cursor-pointer hover:text-white hover:bg-red-700"
-                    onClick={() => onDelete?.(entry.uuid)}
+                    onClick={() => onDelete?.(entry.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
@@ -216,35 +217,33 @@ export function JournalEntryCard({ entry, onDelete }: JournalEntryCardProps) {
         <CardContent>
           {!entry.image_url && (
             <p className="text-slate-600 dark:text-slate-300 mb-6 line-clamp-3">
-              {getPreview(entry.journal_content)}
+              {getPreview(entry.content)}
             </p>
           )}
 
           {entry.image_url && (
             <p className="text-slate-600 dark:text-slate-300 mb-3 line-clamp-2 text-sm mt-4">
-              {getPreview(entry.journal_content)}
+              {getPreview(entry.content)}
             </p>
           )}
-          {entry.journal_tags && entry.journal_tags.length > 0 && (
+          {entry.tags && entry.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {entry.journal_tags.slice(0, 3).map((tag) => (
+              {entry.tags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   {tag}
                 </Badge>
               ))}
-              {entry.journal_tags.length > 3 ? (
+              {entry.tags.length > 3 ? (
                 <Badge variant="outline" className="text-xs">
                   +&nbsp;
-                  {entry.journal_tags.length > 3
-                    ? entry.journal_tags.length - 3
-                    : ""}
+                  {entry.tags.length > 3 ? entry.tags.length - 3 : ""}
                 </Badge>
               ) : (
                 <></>
               )}
             </div>
           )}
-          {entry.journal_tags.length === 0 && (
+          {entry.tags.length === 0 && (
             <Badge variant="outline" className="text-xs italic">
               No tags
             </Badge>

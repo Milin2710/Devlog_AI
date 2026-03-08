@@ -31,7 +31,22 @@ export default function EditEntry({
         },
       );
       const data = await response.data;
-      setEntry(data);
+      // change the format of the data to match the JournalEntry type
+      const EntryCorrectFormat: JournalEntry = {
+        id: data.uuid,
+        userId: data.userId,
+        title: data.journal_title,
+        content: data.journal_content,
+        media: data.media || [],
+        tags: data.journal_tags,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        image_url: data.image_url,
+        isPublic: data.isPublic,
+        allowedEmails: data.allowed_emails || [],
+      };
+
+      setEntry(EntryCorrectFormat);
     } catch (error) {
       console.error("Error fetching entry:", error);
       router.push("/dashboard");
@@ -62,6 +77,5 @@ export default function EditEntry({
       </div>
     );
   }
-
   return <JournalEntryForm entry={entry} />;
 }

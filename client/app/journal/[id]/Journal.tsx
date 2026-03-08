@@ -47,12 +47,7 @@ import axios from "axios";
 // import html2pdf from "html2pdf.js";
 import { useJournals } from "@/context/JournalContext";
 import { JournalSharingModal } from "@/components/journal-sharing-modal";
-
-interface SummaryData {
-  summary: string;
-  wordCount: number;
-  readingTime: number;
-}
+import type { SummaryData } from "@/lib/types";
 
 export default function Entry({ params }: { params: Promise<{ id: string }> }) {
   const { journals, setJournals } = useJournals();
@@ -63,7 +58,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
   const [isLoading, setIsLoading] = useState(true);
   const [formattedContent, setFormattedContent] = useState<string>("");
   const [showSummary, setShowSummary] = useState(false);
-  const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
+  const [summaryData, setSummaryData] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -73,12 +68,12 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     const loadEntry = async () => {
-      const journal = journals.find((j) => j.uuid === id);
+      const journal = journals?.find((j) => j.id === id);
       if (!journal) {
         await fetchEntry();
       } else {
         setEntry(journal);
-        const formatted = await formatContent(journal.journal_content);
+        const formatted = await formatContent(journal.content);
         setFormattedContent(formatted);
         setIsLoading(false);
       }
@@ -88,8 +83,8 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
   }, [id, journals]);
 
   useEffect(() => {
-    if (entry?.journal_title) {
-      document.title = `${entry.journal_title} | Devlog AI`;
+    if (entry?.title) {
+      document.title = `${entry.title} | Devlog AI`;
     }
   }, [entry]);
 
@@ -102,9 +97,23 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
         },
       );
       const data = await response.data;
-      console.log("ENTRIES FETCHED NO CACHING");
-      setEntry(data);
-      const formatted = await formatContent(data.journal_content);
+      // console.log("Fetched entry data:", data);
+      const correctFormatEntry: JournalEntry = {
+        id: data.uuid,
+        userId: data.userId,
+        title: data.journal_title,
+        content: data.journal_content,
+        media: data.media || [],
+        tags: data.journal_tags,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        image_url: data.image_url,
+        isPublic: data.isPublic,
+        allowedEmails: data.allowed_emails || [],
+      };
+
+      setEntry(correctFormatEntry);
+      const formatted = await formatContent(correctFormatEntry.content);
       setFormattedContent(formatted);
     } catch (error) {
       console.error("Error fetching entry:", error);
@@ -156,7 +165,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
     setTimeout(() => {
       const opt = {
         margin: 0.5,
-        filename: `${entry.journal_title}.pdf`,
+        filename: `${entry?.title}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
@@ -164,7 +173,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
 
       html2pdf()
         .set(opt)
-        .from(pdfRef.current)
+        .from(pdfRef.current?.cloneNode(true) as HTMLElement)
         .save()
         .then(() => setIsDownloading(false));
     }, 0);
@@ -176,7 +185,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
 
     const opt = {
       margin: 0.5,
-      filename: `${entry.journal_title} Summary.pdf`,
+      filename: `${entry?.title} Summary.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
@@ -217,13 +226,14 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
     setTypingComplete(false);
     setSummaryData(null);
 
-    const markdownText = entry.journal_content;
+    const markdownText = entry?.content;
     axios
       .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/summarize`, {
         markdownText,
       })
       .then(async (response) => {
         const formatted = await formatContent(response.data.summary);
+        // console.log("summary:", response.data.summary);
         setSummaryData(response.data.summary);
         setIsSummarizing(false);
       })
@@ -245,7 +255,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
             <div className="relative h-96 overflow-hidden">
               <img
                 src={entry.image_url || "/placeholder.svg"}
-                alt={entry.journal_title}
+                alt={entry.title}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
@@ -302,7 +312,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
                     {/* Edit */}
                     <DropdownMenuItem asChild>
                       <Link
-                        href={`/journal/${entry.uuid}/edit`}
+                        href={`/journal/${entry.id}/edit`}
                         className="flex items-center w-full text-sm cursor-pointer"
                       >
                         <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -336,26 +346,26 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
               <div className="absolute bottom-0 left-0 right-0 p-8">
                 <div className="max-w-4xl mx-auto">
                   <h1 className="text-3xl md:text-5xl sm:4xl font-bold text-white mb-4 leading-tight">
-                    {entry.journal_title}
+                    {entry.title}
                   </h1>
 
                   <div className="flex items-center gap-6 text-white/90 mb-4">
                     <div className="flex items-center">
                       <Calendar className="h-5 w-5 mr-2" />
-                      Created: {formatDate(entry.created_at)}
+                      Created: {formatDate(entry.createdAt)}
                     </div>
-                    {entry.updated_at !== entry.created_at && (
+                    {entry.updatedAt !== entry.createdAt && (
                       <div className="flex items-center">
                         <Clock className="h-5 w-5 mr-2" />
-                        Updated: {formatDate(entry.updated_at)}
+                        Updated: {formatDate(entry.updatedAt)}
                       </div>
                     )}
                     <Badge>{entry.isPublic ? "Public" : "Private"}</Badge>
                   </div>
 
-                  {entry.journal_tags.length > 0 && (
+                  {entry.tags?.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {entry.journal_tags.map((tag) => (
+                      {entry.tags.map((tag) => (
                         <Badge
                           key={tag}
                           variant="secondary"
@@ -382,26 +392,26 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h1 className="text-3xl md:text-5xl sm:4xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
-                      {entry.journal_title}
+                      {entry.title}
                     </h1>
 
                     <div className="flex items-center gap-6 text-slate-600 dark:text-slate-300 mb-4">
                       <div className="flex items-center">
                         <Calendar className="h-5 w-5 mr-2" />
-                        Created: {formatDate(entry.created_at)}
+                        Created: {formatDate(entry.createdAt)}
                       </div>
-                      {entry.updated_at !== entry.created_at && (
+                      {entry.updatedAt !== entry.createdAt && (
                         <div className="flex items-center">
                           <Clock className="h-5 w-5 mr-2" />
-                          Updated: {formatDate(entry.updated_at)}
+                          Updated: {formatDate(entry.updatedAt)}
                         </div>
                       )}
                       <Badge>{entry.isPublic ? "Public" : "Private"}</Badge>
                     </div>
 
-                    {entry.journal_tags.length > 0 && (
+                    {entry.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-6">
-                        {entry.journal_tags.map((tag) => (
+                        {entry.tags.map((tag) => (
                           <Badge key={tag} variant="secondary">
                             {tag}
                           </Badge>
@@ -456,7 +466,7 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
                         {/* Edit */}
                         <DropdownMenuItem asChild>
                           <Link
-                            href={`/journal/${entry.uuid}/edit`}
+                            href={`/journal/${entry.id}/edit`}
                             className="flex items-center w-full text-sm cursor-pointer"
                           >
                             <Edit className="h-4 w-4 mr-2 text-muted-foreground" />

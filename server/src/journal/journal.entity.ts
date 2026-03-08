@@ -44,6 +44,9 @@ export class JournalEntry {
   @Column({ type: 'varchar', nullable: true })
   image_url?: string | null;
 
+  @Column({ type: 'json', nullable: true })
+  media_urls?: string[] | null;
+
   @Column('text', { array: true, default: [], nullable: true })
   allowedEmails: string[];
 

@@ -1,11 +1,15 @@
-# 🧠 DEVLOG AI  
+# 🧠 DEVLOG AI
+
 ### A Personal Coding Journal with AI-Powered Refinement
+
 ---
+
 ## ✨ What is DEVLOG AI?
 
 DEVLOG AI is a full-stack web application that helps developers transform messy daily coding notes into structured, searchable, and AI-refined knowledge.
 
 ## 🔗 Live Demo
+
 https://devlog-ai.vercel.app/
 
 ## 🧪 Demo Access
@@ -26,6 +30,7 @@ It’s designed around a simple loop:
 > Capture → Refine → Organize → Reuse
 
 Instead of scattered notes across tools, DEVLOG AI turns:
+
 - Raw debugging logs → structured Markdown
 - Rough thoughts → improved writing
 - Daily entries → searchable knowledge base
@@ -38,15 +43,19 @@ This project focuses on clean architecture, AI integration, and production-style
 ## 📸 Screenshots
 
 ### Dashboard
+
 ![Dashboard](./readme-assets/dashboard.png)
 
 ### Journal Editor
+
 ![Editor](./readme-assets/editjournal.png)
 
 ### AI Summary
+
 ![AI Summary](./readme-assets/summary.png)
 
 ### Sharing Controls
+
 ![Sharing](./readme-assets/sharejournal.png)
 
 ---
@@ -59,10 +68,12 @@ This project focuses on clean architecture, AI integration, and production-style
 2. API requests are sent to a **NestJS backend (REST API)**.
 3. Backend:
    - Handles authentication & validation
+   - Supports **JWT authentication and Google OAuth**
    - Interacts with PostgreSQL via TypeORM
-   - Calls Gemini API for AI features
-4. Media uploads are stored and optimized using Cloudinary.
-5. PDF exports are generated client-side (HTML → PDF pipeline).
+   - Calls AI APIs for summarization and writing assistance
+4. Media uploads are stored and optimized using **Cloudinary**.
+5. Journal images are stored as references and can be embedded anywhere within entries.
+6. PDF exports are generated client-side (HTML → PDF pipeline).
 
 ### 🔐 Authorization & Sharing Model
 
@@ -77,6 +88,7 @@ This project focuses on clean architecture, AI integration, and production-style
 ## 🚀 Core Features
 
 ### 📝 Journal Engine
+
 - Create, edit, delete journal entries
 - Markdown + plain-text writing support
 - Live preview (split view on desktop)
@@ -86,12 +98,14 @@ This project focuses on clean architecture, AI integration, and production-style
   - Tags
 - GitHub-style activity heatmap
 - Streak tracking logic
+- **Dynamic page titles and favicons based on the current journal entry**
 
 ---
 
 ### 🤖 AI Features (Backend-Proxied)
 
 All AI requests are routed through the backend to:
+
 - Protect API keys
 - Control usage
 - Maintain clean separation of concerns
@@ -115,7 +129,10 @@ Features include:
 ---
 
 ### 🖼 Media & Export
-- Featured image uploads (Cloudinary auto-optimization)
+
+- Upload **multiple images per journal entry**
+- Images can be **embedded anywhere inside the content**
+- Media stored and optimized via **Cloudinary CDN**
 - Entry → HTML → PDF export
 - Summary → downloadable PDF
 - Persistent light/dark theme
@@ -134,8 +151,11 @@ Features include:
 - NestJS
 - TypeORM
 - PostgreSQL
+- JWT Authentication
+- **Custom Google OAuth integration**
 
 ### AI & Media
+
 - Gemini API / Groq API
 - Cloudinary
 
@@ -182,15 +202,19 @@ Core tables:
 git clone https://github.com/Milin2710/Devlog_AI
 cd Devlog_AI
 ```
+
 ### 2️⃣ Environment Variables
 
 Create .env in both client/ and server/.
 
 #### client/.env
+
 ```
 NEXT_PUBLIC_CLOUDINARY_URL=your_cloudinary_url
 ```
+
 #### server/.env
+
 ```
 DATABASE_URL=postgres://user:pass@host:port/dbname
 JWT_SECRET=your_secret
@@ -205,7 +229,9 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 GROQ_API_KEY=your_groq_api_key_here
 NODE_ENV=development
 ```
+
 ### 3️⃣ Run Locally
+
 ```
 # client
 npm install
@@ -215,6 +241,7 @@ npm run dev
 npm install
 npm start
 ```
+
 Visit → http://localhost:3000
 
 ## 📈 Roadmap
@@ -229,11 +256,13 @@ Visit → http://localhost:3000
 
 ## 🧠 Engineering Highlights
 
-- Modular NestJS architecture
-- Resource-level authorization
-- AI request proxying for key security
-- Relational modeling with scalable join tables
-- Deployment split: Vercel (frontend) + Render (backend)
+- Modular **NestJS backend architecture**
+- Custom **Google OAuth implementation (without third-party auth providers)**
+- Resource-level authorization for shared entries
+- AI request proxying for API key protection
+- Image storage with **Cloudinary CDN integration**
+- Media-aware relational schema supporting **multiple images per journal**
+- Deployment split: **Vercel (frontend) + Render (backend)**
 
 ---
 

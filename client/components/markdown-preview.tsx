@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MediaFile } from "@/lib/types";
 import { Eye, FileText } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import rehypeDocument from "rehype-document";
@@ -12,20 +13,31 @@ import { unified } from "unified";
 
 interface MarkdownPreviewProps {
   content: string;
+  mediaFiles: MediaFile[];
 }
 
-export function MarkdownPreview({ content }: MarkdownPreviewProps) {
+export function MarkdownPreview({ content, mediaFiles }: MarkdownPreviewProps) {
   const [formattedContent, setFormattedContent] = useState<string>("");
-
-
 
   useEffect(() => {
     if (content.trim()) {
       showPreview(content);
+      let processedContent = content;
+
+      mediaFiles.forEach((media) => {
+        const tempLink = `devlog-temp://${media.id}`;
+
+        if (media.url) {
+          processedContent = processedContent.replaceAll(tempLink, media.url);
+        }
+      });
+
+      showPreview(processedContent);
     } else {
       setFormattedContent("");
+      return;
     }
-  }, [content]);
+  }, [content, mediaFiles]);
 
   const formatContent = async (content: string): Promise<string> => {
     const file = await unified()

@@ -26,7 +26,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import type { JournalEntry } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import {
@@ -49,6 +48,9 @@ import { MarkdownPreview } from "@/components/markdown-preview";
 import axios from "axios";
 import { useJournals } from "@/context/JournalContext";
 import { ContentEnhancementButtons } from "./content-enhancement-buttons";
+import { MediaUpload } from "./media-upload";
+import type { MediaFile } from "@/lib/types";
+import type { JournalEntry } from "@/lib/types";
 
 interface JournalEntryFormProps {
   entry: JournalEntry;
@@ -57,9 +59,9 @@ interface JournalEntryFormProps {
 export function JournalEntryForm({ entry }: JournalEntryFormProps) {
   const { journals, setJournals } = useJournals();
   const router = useRouter();
-  const [title, setTitle] = useState(entry.journal_title);
-  const [content, setContent] = useState(entry.journal_content);
-  const [tags, setTags] = useState<string[]>(entry.journal_tags);
+  const [title, setTitle] = useState(entry.title);
+  const [content, setContent] = useState(entry.content);
+  const [tags, setTags] = useState<string[]>(entry.tags);
   const [formattedContent, setFormattedContent] = useState<string>("");
   const [newTags, setNewTags] = useState("");
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
@@ -71,11 +73,12 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
   );
   const [imageChanged, setImageChanged] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(
-    () => new Date(entry.created_at),
+    () => new Date(entry.createdAt),
   );
   const [loadingtags, setLoadingtags] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [media, setMedia] = useState<MediaFile[]>(entry.media || []);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -86,7 +89,14 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
       top: el.scrollHeight,
       behavior: "smooth",
     });
-  }, [entry.journal_content]);
+  }, [entry.content]);
+
+  useEffect(() => {
+    media.forEach((file) => {
+      if (file.url) return;
+      file.url = URL.createObjectURL(file.file);
+    });
+  }, [media]);
 
   const addTags = () => {
     if (newTags.trim()) {
@@ -197,23 +207,33 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
     }
     setJournals(null);
     const formData = new FormData();
+    formData.append("journalid", entry.id);
     formData.append("journal_title", title);
     formData.append("created_at", selectedDate.toISOString());
     formData.append("journal_content", content);
     formData.append("journal_tags", JSON.stringify(tags));
     if (imageChanged) {
       if (featuredImage) {
-        formData.append("file", featuredImage); // send new file
+        formData.append("file", featuredImage);
       } else {
-        formData.append("image_url", ""); // signal to backend to remove image
+        formData.append("image_url", "");
       }
     } else {
-      formData.append("image_url", currentImage || ""); // unchanged
+      formData.append("image_url", currentImage || "");
     }
+
+    formData.append(
+      "media",
+      JSON.stringify(media.map(({ file, ...rest }) => rest)),
+    );
+
+    media.forEach((m) => {
+      formData.append("mediaFiles", m.file);
+    });
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${entry.uuid}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${entry.id}`,
         formData,
         {
           withCredentials: true,
@@ -450,6 +470,18 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
                     </p>
                   </div>
 
+                  <MediaUpload
+                    media={media}
+                    onMediaAdd={setMedia}
+                    onMediaRemove={(id) =>
+                      setMedia(media.filter((m) => m.id !== id))
+                    }
+                    onInsertMarkdown={(markdown) => {
+                      setContent((prev) => prev + "\n" + markdown);
+                    }}
+                    disabled={isLoading}
+                  />
+
                   <div className="space-y-2">
                     <Label htmlFor="content">Content</Label>
                     <Textarea
@@ -560,7 +592,7 @@ export function JournalEntryForm({ entry }: JournalEntryFormProps) {
               className="sticky top-6 h-full overflow-y-auto"
               ref={previewRef}
             >
-              <MarkdownPreview content={content} />
+              <MarkdownPreview content={content} mediaFiles={media} />
             </div>
           </div>
         </div>

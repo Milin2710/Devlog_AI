@@ -23,7 +23,7 @@ const TypingAnimation = forwardRef<HTMLDivElement, TypingAnimationProps>(
     useImperativeHandle(ref, () => internalRef.current as HTMLDivElement);
 
     useEffect(() => {
-      if (currentIndex < text.length) {
+      if (currentIndex < text?.length) {
         const timer = setTimeout(() => {
           setDisplayedText((prev) => prev + text[currentIndex]);
           setCurrentIndex((prev) => prev + 1);
@@ -43,7 +43,7 @@ const TypingAnimation = forwardRef<HTMLDivElement, TypingAnimationProps>(
             className="prose dark:prose-invert max-w-none break-words"
             dangerouslySetInnerHTML={{ __html: displayedText }}
           />
-          {currentIndex < text.length && (
+          {currentIndex < text?.length && (
             <span className="inline-block w-0.5 h-5 bg-blue-500 ml-1 animate-pulse" />
           )}
         </div>

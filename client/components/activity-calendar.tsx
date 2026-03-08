@@ -51,7 +51,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
 
     const totalDays =
       Math.ceil(
-        (lastDay.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000)
+        (lastDay.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000),
       ) + 1;
     const totalWeeks = Math.ceil(totalDays / 7);
 
@@ -66,11 +66,10 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
     while (currentDate <= lastDay) {
       const dayOfWeek = currentDate.getDay();
       const dateStr = currentDate.toISOString().split("T")[0];
+      // console.log("entries activity", entries);
 
       const dayEntries = entries.filter((entry) => {
-        const entryDate = new Date(entry.created_at)
-          .toISOString()
-          .split("T")[0];
+        const entryDate = new Date(entry.createdAt).toISOString().split("T")[0];
         return entryDate === dateStr;
       });
 
@@ -106,9 +105,11 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
 
   // Get weeks for display
   const weeks = useMemo(() => {
-    const weekArray: DayData[][] = [];
-    for (let i = 0; i < calendarMatrix.length; i += 7) {
-      weekArray.push(calendarMatrix.slice(i, i + 7));
+    const weekArray: (DayData | null)[][] = [];
+    const numWeeks = calendarMatrix[0].length;
+    for (let weekIndex = 0; weekIndex < numWeeks; weekIndex++) {
+      const week = calendarMatrix.map((row) => row[weekIndex]);
+      weekArray.push(week);
     }
     return weekArray;
   }, [calendarMatrix]);
@@ -130,7 +131,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
   };
 
   const currentYearEntries = entries.filter(
-    (entry) => new Date(entry.created_at).getFullYear() === currentYear
+    (entry) => new Date(entry.createdAt).getFullYear() === currentYear,
   ).length;
 
   return (
@@ -206,7 +207,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                             getIntensityClass(day.count),
                             !isCurrentMonth && "opacity-40",
                             isToday && "ring-1 ring-blue-500 ring-offset-1",
-                            day.count > 0 && "cursor-pointer"
+                            day.count > 0 && "cursor-pointer",
                           )}
                           title={`${formatDate(day.date)}: ${day.count} ${
                             day.count === 1 ? "entry" : "entries"
@@ -254,32 +255,32 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
           {selectedDay && selectedDay.entries.length > 0 && (
             <div className="space-y-4">
               {selectedDay.entries.map((entry) => (
-                <Card key={entry.uuid} className="border-l-4 border-l-blue-500">
+                <Card key={entry.id} className="border-l-4 border-l-blue-500">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg mb-1">
                           <Link
-                            href={`/journal/${entry.uuid}`}
+                            href={`/journal/${entry.id}`}
                             className="hover:text-blue-600 transition-colors"
                             onClick={() => setSelectedDay(null)}
                           >
-                            {entry.journal_title}
+                            {entry.title}
                           </Link>
                         </CardTitle>
                         <div className="text-sm text-slate-500 dark:text-slate-400">
-                          {new Date(entry.created_at).toLocaleTimeString(
+                          {new Date(entry.createdAt).toLocaleTimeString(
                             "en-US",
                             {
                               hour: "2-digit",
                               minute: "2-digit",
-                            }
+                            },
                           )}
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Link
-                          href={`/journal/${entry.uuid}`}
+                          href={`/journal/${entry.id}`}
                           onClick={() => setSelectedDay(null)}
                         >
                           <Button variant="outline" size="sm">
@@ -288,7 +289,7 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                           </Button>
                         </Link>
                         <Link
-                          href={`/journal/${entry.uuid}/edit`}
+                          href={`/journal/${entry.id}/edit`}
                           onClick={() => setSelectedDay(null)}
                         >
                           <Button variant="outline" size="sm">
@@ -301,11 +302,11 @@ export function ActivityCalendar({ entries }: ActivityCalendarProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-slate-600 dark:text-slate-300 mb-3">
-                      {getPreview(entry.journal_content)}
+                      {getPreview(entry.content)}
                     </p>
-                    {entry.journal_tags.length > 0 && (
+                    {entry.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {entry.journal_tags.map((tag) => (
+                        {entry.tags.map((tag) => (
                           <Badge
                             key={tag}
                             variant="secondary"

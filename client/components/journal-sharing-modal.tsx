@@ -55,14 +55,14 @@ export function JournalSharingModal({
 }: JournalSharingModalProps) {
   const { journals, setJournals } = useJournals();
   const [originalSettings, setOriginalSettings] = useState<SaveSettings>({
-    isPublic: entry.isPublic,
+    isPublic: entry.isPublic || false,
     allowedEmails: entry.allowedEmails || [],
-    journalid: entry.uuid,
+    journalid: entry.id,
   });
   const [currentSettings, setCurrentSettings] = useState<SaveSettings>({
-    isPublic: false,
-    allowedEmails: [],
-    journalid: entry.uuid,
+    isPublic: entry.isPublic || false,
+    allowedEmails: entry.allowedEmails || [],
+    journalid: entry.id,
   });
   const [newEmail, setNewEmail] = useState("");
   const [copied, setCopied] = useState(false);
@@ -70,18 +70,20 @@ export function JournalSharingModal({
   const [isSaving, setIsSaving] = useState(false);
   const [emailError, setEmailError] = useState("");
 
+  // console.log("entry in sharing modal:", entry);
+
   useEffect(() => {
     if (open) {
       loadSharingSettings();
     }
-  }, [open, entry.uuid]);
+  }, [open, entry.id]);
 
   const loadSharingSettings = async () => {
     setIsLoading(true);
     const settings = {
       isPublic: entry.isPublic || false,
       allowedEmails: entry.allowedEmails || [],
-      journalid: entry.uuid,
+      journalid: entry.id,
     };
     setOriginalSettings(settings);
     setCurrentSettings(settings);
@@ -132,7 +134,7 @@ export function JournalSharingModal({
     setCurrentSettings((prev) => ({
       ...prev,
       allowedEmails: prev.allowedEmails.filter(
-        (email) => email !== emailToRemove
+        (email) => email !== emailToRemove,
       ),
     }));
   };
@@ -146,14 +148,23 @@ export function JournalSharingModal({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(currentSettings),
-        }
+        },
       );
 
       if (response.ok) {
         setOriginalSettings(currentSettings);
         onOpenChange(false);
-        setJournals(null);
-        // Show success feedback
+        // change the sharing settings of the entry in the JournalContext using journalid
+        const updatedEntry = {
+          ...entry,
+          isPublic: currentSettings.isPublic,
+          allowedEmails: currentSettings.allowedEmails,
+        };
+        const updatedJournals =
+          journals?.map((journal) =>
+            journal.id === entry.id ? updatedEntry : journal,
+          ) || [];
+        setJournals(updatedJournals);
       } else {
         throw new Error("Failed to save settings");
       }
@@ -176,8 +187,8 @@ export function JournalSharingModal({
     try {
       await navigator.clipboard.writeText(
         process.env.NEXT_PUBLIC_CORS_ORIGIN +
-          "share/" +
-          originalSettings.journalid
+          "/share/" +
+          originalSettings.journalid,
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -256,8 +267,7 @@ export function JournalSharingModal({
             Share Journal Entry
           </DialogTitle>
           <DialogDescription>
-            Control who can view "{entry.journal_title}" and manage sharing
-            settings
+            Control who can view "{entry.title}" and manage sharing settings
           </DialogDescription>
         </DialogHeader>
 
@@ -331,7 +341,7 @@ export function JournalSharingModal({
                     <Input
                       value={
                         process.env.NEXT_PUBLIC_CORS_ORIGIN +
-                        "share/" +
+                        "/share/" +
                         originalSettings.journalid
                       }
                       readOnly
@@ -361,9 +371,9 @@ export function JournalSharingModal({
                       onClick={() =>
                         window.open(
                           process.env.NEXT_PUBLIC_CORS_ORIGIN +
-                            "share/" +
+                            "/share/" +
                             originalSettings.journalid,
-                          "_blank"
+                          "_blank",
                         )
                       }
                       className="flex-shrink-0"

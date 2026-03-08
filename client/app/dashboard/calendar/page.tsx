@@ -26,10 +26,23 @@ export default function CalendarPage() {
         process.env.NEXT_PUBLIC_BACKEND_URL + "/journal/all",
         {
           withCredentials: true,
-        }
+        },
       );
       const data = await response.data;
-      setEntries(data);
+      const formattedEntries: JournalEntry[] = data.map((entry: any) => ({
+        id: entry.uuid,
+        userId: entry.userId,
+        title: entry.journal_title,
+        content: entry.journal_content,
+        tags: entry.journal_tags,
+        createdAt: entry.created_at,
+        updatedAt: entry.updated_at,
+        image_url: entry.image_url,
+        isPublic: entry.isPublic,
+        allowedEmails: entry.allowed_emails || [],
+      }));
+
+      setEntries(formattedEntries);
     } catch (error) {
       console.error("Error fetching entries:", error);
     } finally {

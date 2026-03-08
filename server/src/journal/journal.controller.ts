@@ -10,6 +10,7 @@ import {
   UseGuards,
   Put,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,7 +19,9 @@ import { JournalService } from './journal.service';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { Express } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+} from '@nestjs/platform-express';
 import * as multer from 'multer';
 
 @Controller('journal')
@@ -27,21 +30,24 @@ export class JournalController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('create')
-  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'file', maxCount: 1 },
+      { name: 'mediaFiles', maxCount: 20 },
+    ]),
+  )
   async createEntry(
-    @UploadedFile() file: Express.Multer.File,
-    @Body()
-    body: {
-      journal_title: string;
-      journal_content: string;
-      journal_tags: string[];
-      created_at: Date;
+    @UploadedFiles()
+    files: {
+      file?: Express.Multer.File[];
+      mediaFiles?: Express.Multer.File[];
     },
+    @Body() body,
     @Req() request: RequestWithUser,
-  ): Promise<JournalEntry> {
-    if (!request.user) {
-      throw new Error('User not found in request');
-    }
+  ) {
+    const featured = files.file?.[0];
+    const mediaFiles = files.mediaFiles || [];
+
     return this.journalService.createEntry(
       request.user.uuid,
       request.user.email,
@@ -51,7 +57,9 @@ export class JournalController {
       body.created_at || new Date(),
       body.journal_content,
       body.journal_tags,
-      file,
+      body.media,
+      featured,
+      mediaFiles,
     );
   }
 
@@ -97,12 +105,27 @@ export class JournalController {
   }
 
   @Put(':journalid')
-  @UseInterceptors(FileInterceptor('file', { storage: multer.memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'file', maxCount: 1 },
+        { name: 'mediaFiles', maxCount: 20 },
+      ],
+      { storage: multer.memoryStorage() },
+    ),
+  )
   async updateEntry(
     @Param('journalid') journalid: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      file?: Express.Multer.File[];
+      mediaFiles?: Express.Multer.File[];
+    },
     @Body() body: any,
   ) {
+    const featured = files.file?.[0];
+    const mediaFiles = files.mediaFiles || [];
+
     const journal_title = body.journal_title;
     const created_at = body.created_at;
     const journal_content = body.journal_content;
@@ -124,8 +147,10 @@ export class JournalController {
       new Date(created_at),
       journal_content,
       tags,
-      file,
+      featured,
       image_url,
+      mediaFiles,
+      body.media,
     );
   }
 }
