@@ -8,6 +8,19 @@
 
 DEVLOG AI is a full-stack web application that helps developers transform messy daily coding notes into structured, searchable, and AI-refined knowledge.
 
+---
+
+## ⭐ Key Highlights
+
+- 🤖 **AI-Powered Journaling** – Convert notes to Markdown, improve writing, generate tags, and create summaries using LLMs.
+- 🔐 **Custom Authentication System** – JWT-based auth with a self-implemented Google OAuth flow (no external auth providers).
+- 🖼 **Rich Journal Media Support** – Upload and embed multiple images anywhere inside journal entries using Cloudinary.
+- 🔎 **Powerful Search & Organization** – Full-text search across titles, content, and tags.
+- 📊 **Admin Analytics Dashboard** – Monitor platform activity, users, tags, entries, and API usage through charts.
+- 📜 **API Request Logging System** – Every API request is recorded for monitoring and debugging.
+- 🔗 **Secure Entry Sharing** – Public or restricted access links with backend-level permission validation.
+- 📈 **Developer Productivity Insights** – GitHub-style heatmap and streak tracking for coding activity.
+
 ## 🔗 Live Demo
 
 https://devlog-ai.vercel.app/
@@ -21,7 +34,7 @@ Password: demo123
 
 ## 🧰 Built With
 
-Next.js · NestJS · PostgreSQL · TypeORM · Gemini/Groq API · Cloudinary · JWT Auth
+Next.js · NestJS · PostgreSQL · TypeORM · Groq/Gemini API · Cloudinary · JWT Auth · Google OAuth
 
 ---
 
@@ -45,6 +58,10 @@ This project focuses on clean architecture, AI integration, and production-style
 ### Dashboard
 
 ![Dashboard](./readme-assets/dashboard.png)
+
+### Admin Analytics Panel
+
+![Admin Panel](./readme-assets/admindashboard.png)
 
 ### Journal Editor
 
@@ -71,6 +88,8 @@ This project focuses on clean architecture, AI integration, and production-style
    - Supports **JWT authentication and Google OAuth**
    - Interacts with PostgreSQL via TypeORM
    - Calls AI APIs for summarization and writing assistance
+   - Tracks **every API request through a centralized logging system**
+   - Exposes an **admin analytics panel** for monitoring platform activity
 4. Media uploads are stored and optimized using **Cloudinary**.
 5. Journal images are stored as references and can be embedded anywhere within entries.
 6. PDF exports are generated client-side (HTML → PDF pipeline).
@@ -139,6 +158,23 @@ Features include:
 
 ---
 
+### 📊 Admin & Analytics
+
+DEVLOG AI includes a built-in admin monitoring dashboard.
+
+Features:
+
+- View total users and platform activity
+- Monitor daily journal entry creation
+- Track active users
+- Analyze tag usage across entries
+- Inspect API request logs
+- View system statistics through charts
+
+All API requests are automatically logged in the backend database, enabling platform monitoring and debugging.
+
+---
+
 ## 🧱 Tech Stack
 
 ### Frontend
@@ -167,10 +203,11 @@ Relational schema designed for scalability and future collaboration features.
 
 Core tables:
 
-- `users`
-- `journal_entries`
-- `summaries`
+- `authentication`
+- `journal`
+- `logs`
 
+The logging table records every API request along with metadata for monitoring and analytics.
 ---
 
 ## 🔐 Security & Engineering Decisions
@@ -181,6 +218,31 @@ Core tables:
 - Environment-based configuration
 - DTO validation via NestJS pipes
 - Clean separation: controller → service → repository layers
+- Centralized API request logging for monitoring and debugging
+
+---
+
+## 📊 Observability & Monitoring
+
+DEVLOG AI includes basic platform observability to monitor system activity and debug issues.
+
+Features:
+
+- **API Request Logging**  
+  Every API request is recorded in the database along with metadata.
+
+- **Admin Analytics Dashboard**  
+  Admins can monitor:
+  - Total users
+  - Active users
+  - Entry creation per day
+  - Tag usage
+  - Platform activity trends
+
+- **Debugging Support**  
+  Logs help trace backend operations and diagnose issues without relying on server console logs.
+
+This system provides visibility into application behavior and user activity, similar to basic observability systems used in production platforms.
 
 ---
 
@@ -228,6 +290,9 @@ GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 GROQ_API_KEY=your_groq_api_key_here
 NODE_ENV=development
+ADMIN_EMAIL=admin_email
+ADMIN_PASSWORD=admin_password
+ADMIN_JWT_SECRET=admin_jwt_secret_example_1234567890
 ```
 
 ### 3️⃣ Run Locally
@@ -254,11 +319,22 @@ Visit → http://localhost:3000
 
 ---
 
+## 📦 Deployment
+
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** PostgreSQL (Render)
+- **Media Storage:** Cloudinary CDN
+
+---
+
 ## 🧠 Engineering Highlights
 
 - Modular **NestJS backend architecture**
 - Custom **Google OAuth implementation (without third-party auth providers)**
 - Resource-level authorization for shared entries
+- Centralized **API request logging system**
+- Built-in **admin analytics dashboard**
 - AI request proxying for API key protection
 - Image storage with **Cloudinary CDN integration**
 - Media-aware relational schema supporting **multiple images per journal**
