@@ -11,6 +11,7 @@ import { SummarizeModule } from './summarize/summarize.module';
 import { AutotagModule } from './autotag/autotag.module';
 import { MarkdownModule } from './markdown/markdown.module';
 import { ShareModule } from './share/share.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ShareModule } from './share/share.module';
     AutotagModule,
     MarkdownModule,
     ShareModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

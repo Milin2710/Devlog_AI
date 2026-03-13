@@ -70,6 +70,9 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload);
 
+    user.updated_at = new Date();
+    await this.userRepository.save(user);
+
     return {
       token,
       user: {
@@ -104,6 +107,10 @@ export class AuthService {
       exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     };
     const token = this.jwtService.sign(payload);
+
+    user.updated_at = new Date();
+    await this.userRepository.save(user);
+
     return {
       token,
       user: {
@@ -115,47 +122,4 @@ export class AuthService {
     };
   }
 
-  // async forgotPassword(email: string): Promise<string> {
-  //   const user = await this.userRepository.findOne({ where: { email } });
-
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-
-  //   // Generate token
-  //   const token = crypto.randomBytes(32).toString('hex');
-  //   const expiry = new Date(Date.now() + 1000 * 60 * 30); // 30 minutes
-
-  //   // Save token & expiry to DB
-  //   user.resetToken = token;
-  //   user.resetTokenExpiry = expiry;
-  //   await this.userRepository.save(user);
-
-  //   const resetUrl = `https://devlog-ai.vercel.app/reset-password/${token}`;
-
-  //   // Send email
-  //   const transporter = nodemailer.createTransport({
-  //     service: 'gmail', // or use your SMTP service
-  //     auth: {
-  //       user: process.env.EMAIL_FROM,
-  //       pass: process.env.EMAIL_PASS,
-  //     },
-  //   });
-
-  //   const mailOptions = {
-  //     from: `"DEVLOG AI" <${process.env.EMAIL_FROM}>`,
-  //     to: user.email,
-  //     subject: 'Reset your DEVLOG AI password',
-  //     html: `
-  //       <p>You requested to reset your password.</p>
-  //       <p>Click the link below to reset it. This link is valid for 30 minutes.</p>
-  //       <a href="${resetUrl}">${resetUrl}</a>
-  //       <p>If you didn't request this, ignore this email.</p>
-  //     `,
-  //   };
-
-  //   await transporter.sendMail(mailOptions);
-
-  //   return 'Password reset link sent';
-  // }
 }

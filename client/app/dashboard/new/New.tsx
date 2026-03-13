@@ -184,6 +184,10 @@ export default function NewEntry({ entry, mode }: JournalEntryFormProps) {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/autotag`,
         {
           markdownText: content,
+          journalId: entry?.id || "",
+        },
+        {
+          withCredentials: true,
         },
       );
       const rawTags: string[] = response.data.tags;

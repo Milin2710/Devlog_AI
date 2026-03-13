@@ -11,14 +11,29 @@ import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RequestWithUser } from './types/request-with-user.interface';
+import { LogsService } from 'src/logs/logs.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('user')
-  getUser(@Req() request: RequestWithUser) {
+  async getUser(@Req() request: RequestWithUser) {
+    await this.logsService.log({
+      user_uuid: request.user?.uuid,
+      user_email: request.user?.email,
+      action: 'get_user',
+      service: 'auth',
+      endpoint: request.originalUrl,
+      method: request.method,
+      ip_address: request.ip,
+      metadata: {},
+    });
+
     return request.user;
   }
 
@@ -31,7 +46,23 @@ export class AuthController {
       email: string;
       password: string;
     },
+    @Req() request: RequestWithUser,
   ) {
+    await this.logsService.log({
+      user_uuid: 'new_user',
+      user_email: body.email,
+      action: 'signup',
+      service: 'auth',
+      endpoint: '/auth/signup',
+      method: 'POST',
+      ip_address: request.ip,
+      metadata: {
+        first_name: body.first_name,
+        last_name: body.last_name,
+        email: body.email,
+      },
+    });
+
     return this.authService.signup(
       body.first_name,
       body.last_name,
@@ -44,8 +75,20 @@ export class AuthController {
   async login(
     @Body() body: { email: string; password: string },
     @Res({ passthrough: true }) response: Response,
+    @Req() request: RequestWithUser,
   ) {
     const result = await this.authService.login(body.email, body.password);
+
+    await this.logsService.log({
+      user_uuid: result.user.uuid,
+      user_email: body.email,
+      action: 'login',
+      service: 'auth',
+      endpoint: '/auth/login',
+      method: 'POST',
+      ip_address: request.ip,
+      metadata: {},
+    });
 
     // Set the token as an HTTP-only cookie
     response.cookie('auth-token', result.token, {
@@ -59,8 +102,8 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req: Request, @Res() res: Response) {
-    const token = req.cookies['auth-token'];
+  async logout(@Req() request: RequestWithUser, @Res() res: Response) {
+    const token = request.cookies['auth-token'];
 
     if (token) {
       res.clearCookie('auth-token', {
@@ -72,6 +115,17 @@ export class AuthController {
 
     res.setHeader('Clear-Site-Data', '"cookies"');
 
+    await this.logsService.log({
+      user_uuid: request.user?.uuid || 'unknown',
+      user_email: request.user?.email || 'unknown',
+      action: 'logout',
+      service: 'auth',
+      endpoint: '/auth/logout',
+      method: 'POST',
+      ip_address: request.ip,
+      metadata: {},
+    });
+
     return res.status(200).json({
       status: 'success',
       message: 'You have been logged out successfully',
@@ -82,6 +136,7 @@ export class AuthController {
   async googleLogin(
     @Body() body: { email: string; name: string },
     @Res({ passthrough: true }) response: Response,
+    @Req() request: RequestWithUser,
   ) {
     const result = await this.authService.googleLogin(body.email, body.name);
 
@@ -93,15 +148,19 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
+    await this.logsService.log({
+      user_uuid: result.user.uuid,
+      user_email: body.email,
+      action: 'google_login',
+      service: 'auth',
+      endpoint: '/auth/google',
+      method: 'POST',
+      ip_address: request.ip,
+      metadata: {
+        name: body.name,
+      },
+    });
+
     return result;
   }
-
-  // @Post('forgot-password')
-  // async forgotPassword(@Body() body: { email: string }, @Res() res: Response) {
-  //   const result = await this.authService.forgotPassword(body.email);
-  //   return res.status(200).json({
-  //     status: 'success',
-  //     message: result.message,
-  //   });
-  // }
 }

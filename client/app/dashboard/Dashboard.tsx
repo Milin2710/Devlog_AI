@@ -110,6 +110,9 @@ export default function Dashboard() {
       try {
         const response = await axios.delete(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
+          {
+            withCredentials: true,
+          },
         );
         fetchEntries();
         setEntries(entries.filter((entry) => entry.id !== id));

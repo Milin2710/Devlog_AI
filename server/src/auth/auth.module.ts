@@ -7,6 +7,8 @@ import { Authentication } from './user.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { BlacklistedToken } from './blacklisted-token.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LogsModule } from 'src/logs/logs.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    LogsModule,
+    AdminModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthGuard],

@@ -9,6 +9,7 @@ import { Authentication } from '../auth/user.entity';
 import { BlacklistedToken } from '../auth/blacklisted-token.entity';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { AuthService } from 'src/auth/auth.service';
+import { LogsModule } from 'src/logs/logs.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthService } from 'src/auth/auth.service';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' }, // Set token expiration
     }),
+    LogsModule,
   ],
   controllers: [JournalController],
   providers: [AuthService, JournalService, JwtAuthGuard, JwtStrategy],

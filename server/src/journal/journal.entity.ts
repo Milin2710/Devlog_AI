@@ -14,7 +14,7 @@ export class JournalEntry {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column()
+  @Column('uuid')
   author_uuid: string;
 
   @Column()

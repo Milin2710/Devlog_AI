@@ -224,9 +224,15 @@ export default function SharedEntryPage({
 
     const markdownText = entry.journal_content;
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/summarize`, {
-        markdownText,
-      })
+      .post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/summarize`,
+        {
+          markdownText,
+        },
+        {
+          withCredentials: true,
+        },
+      )
       .then(async (response) => {
         const formatted = await formatContent(response.data.summary);
         setSummaryData(response.data.summary);

@@ -20,6 +20,7 @@ import {
   Check,
   RefreshCw,
 } from "lucide-react";
+import axios from "axios";
 
 interface ContentEnhancementButtonsProps {
   content: string;
@@ -122,49 +123,51 @@ export function ContentEnhancementButtons({
   };
 
   const generateMarkdownFormat = async (text: string) => {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/format",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/format",
+        {
+          markdownText: text,
         },
-        body: JSON.stringify({ markdownText: text }),
+        {
+          withCredentials: true,
+        },
+      );
+      const data = await response.data;
+      if (data.summary.startsWith("```markdown")) {
+        return data.summary
+          .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")
+          .trim();
       }
-    );
-    if (!response.ok) {
+      return data.summary;
+    } catch (error) {
+      console.error("Error in API call:", error);
       throw new Error("Failed to format markdown");
     }
-    const data = await response.json();
-    if (data.summary.startsWith("```markdown")) {
-      return data.summary
-        .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")
-        .trim();
-    }
-    return data.summary;
   };
 
   const generateImprovedWording = async (text: string) => {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/improvewording",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/markdown/improvewording",
+        {
+          markdownText: text,
         },
-        body: JSON.stringify({ markdownText: text }),
+        {
+          withCredentials: true,
+        },
+      );
+      const data = await response.data;
+      if (data.improvedWording.startsWith("```markdown")) {
+        return data.improvedWording
+          .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")
+          .trim();
       }
-    );
-    if (!response.ok) {
+      return data.improvedWording;
+    } catch (error) {
+      console.error("Error in API call:", error);
       throw new Error("Failed to format markdown");
     }
-    const data = await response.json();
-    if (data.improvedWording.startsWith("```markdown")) {
-      return data.improvedWording
-        .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")
-        .trim();
-    }
-    return data.improvedWording;
   };
 
   const handleApplyChanges = () => {

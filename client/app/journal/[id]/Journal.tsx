@@ -128,6 +128,9 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
       try {
         const response = await axios.delete(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/journal/${id}`,
+          {
+            withCredentials: true,
+          },
         );
         router.push("/dashboard");
       } catch (error) {
@@ -228,9 +231,15 @@ export default function Entry({ params }: { params: Promise<{ id: string }> }) {
 
     const markdownText = entry?.content;
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/summarize`, {
-        markdownText,
-      })
+      .post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/summarize`,
+        {
+          markdownText,
+        },
+        {
+          withCredentials: true,
+        },
+      )
       .then(async (response) => {
         const formatted = await formatContent(response.data.summary);
         // console.log("summary:", response.data.summary);

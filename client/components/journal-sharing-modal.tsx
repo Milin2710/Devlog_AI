@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useJournals } from "@/context/JournalContext";
+import axios from "axios";
 
 interface JournalSharingModalProps {
   open: boolean;
@@ -142,31 +143,32 @@ export function JournalSharingModal({
   const handleSaveChanges = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch(
+      const response = await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/share/save",
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(currentSettings),
-        },
-      );
-
-      if (response.ok) {
-        setOriginalSettings(currentSettings);
-        onOpenChange(false);
-        // change the sharing settings of the entry in the JournalContext using journalid
-        const updatedEntry = {
-          ...entry,
           isPublic: currentSettings.isPublic,
           allowedEmails: currentSettings.allowedEmails,
-        };
-        const updatedJournals =
-          journals?.map((journal) =>
-            journal.id === entry.id ? updatedEntry : journal,
-          ) || [];
-        setJournals(updatedJournals);
-      } else {
-        throw new Error("Failed to save settings");
+          journalid: currentSettings.journalid,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+      setOriginalSettings(currentSettings);
+      onOpenChange(false);
+      // change the sharing settings of the entry in the JournalContext using journalid
+      const updatedEntry = {
+        ...entry,
+        isPublic: currentSettings.isPublic,
+        allowedEmails: currentSettings.allowedEmails,
+      };
+      const updatedJournals =
+        journals?.map((journal) =>
+          journal.id === entry.id ? updatedEntry : journal,
+        ) || [];
+      setJournals(updatedJournals);
+      if (onUpdate) {
+        onUpdate(updatedEntry);
       }
     } catch (error) {
       console.error("Error saving sharing settings:", error);
