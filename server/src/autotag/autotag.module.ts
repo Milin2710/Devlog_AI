@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AutotagController } from './autotag.controller';
 import { AutotagService } from './autotag.service';
-import { LogsModule } from 'src/logs/logs.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [LogsModule],

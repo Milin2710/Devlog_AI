@@ -21,7 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Express } from 'express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
-import { LogsService } from 'src/logs/logs.service';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('journal')
 export class JournalController {

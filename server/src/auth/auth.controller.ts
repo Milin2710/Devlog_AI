@@ -11,7 +11,7 @@ import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RequestWithUser } from './types/request-with-user.interface';
-import { LogsService } from 'src/logs/logs.service';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('auth')
 export class AuthController {

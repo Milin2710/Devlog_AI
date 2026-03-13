@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JournalEntry } from 'src/journal/journal.entity';
+import { JournalEntry } from '../journal/journal.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

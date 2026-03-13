@@ -4,10 +4,10 @@ import { AdminController } from './admin.controller';
 import { AdminGuard } from './admin.guard';
 import { LogsModule } from '../logs/logs.module';
 import { AdminService } from './admin.service';
-import { Authentication } from 'src/auth/user.entity';
+import { Authentication } from '../auth/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JournalEntry } from 'src/journal/journal.entity';
-import { Logs } from 'src/logs/logs.entity';
+import { JournalEntry } from '../journal/journal.entity';
+import { Logs } from '../logs/logs.entity';
 
 @Module({
   imports: [

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JournalEntry } from 'src/journal/journal.entity';
+import { JournalEntry } from '../journal/journal.entity';
 import { ShareController } from './share.controller';
 import { ShareService } from './share.service';
-import { LogsModule } from 'src/logs/logs.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([JournalEntry]), LogsModule],

@@ -1,8 +1,8 @@
 import { Controller, Get, Body, Post, Req } from '@nestjs/common';
 import { AutotagService } from './autotag.service';
 import { request } from 'http';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
-import { LogsService } from 'src/logs/logs.service';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
+import { LogsService } from '../logs/logs.service';
 
 @Controller()
 export class AutotagController {

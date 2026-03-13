@@ -7,8 +7,8 @@ import { Authentication } from './user.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { BlacklistedToken } from './blacklisted-token.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LogsModule } from 'src/logs/logs.module';
-import { AdminModule } from 'src/admin/admin.module';
+import { LogsModule } from '../logs/logs.module';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
   imports: [

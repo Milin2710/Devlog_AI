@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators';
-import { Authentication } from 'src/auth/user.entity';
+import { Authentication } from '../auth/user.entity';
 import { Repository } from 'typeorm/repository/Repository';
-import { JournalEntry } from 'src/journal/journal.entity';
+import { JournalEntry } from '../journal/journal.entity';
 import { Logs } from '../logs/logs.entity';
 
 @Injectable()

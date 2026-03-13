@@ -8,8 +8,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Authentication } from '../auth/user.entity';
 import { BlacklistedToken } from '../auth/blacklisted-token.entity';
 import { JwtStrategy } from '../auth/jwt.strategy';
-import { AuthService } from 'src/auth/auth.service';
-import { LogsModule } from 'src/logs/logs.module';
+import { AuthService } from '../auth/auth.service';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [

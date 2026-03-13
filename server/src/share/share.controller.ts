@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { ShareService } from './share.service';
 import { AuthGuard } from '@nestjs/passport';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
-import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
-import { LogsService } from 'src/logs/logs.service';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('share')
 export class ShareController {

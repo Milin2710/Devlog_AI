@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MarkdownController } from './markdown.controller';
 import { MarkdownService } from './markdown.service';
-import { LogsModule } from 'src/logs/logs.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [LogsModule],
