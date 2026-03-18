@@ -49,6 +49,8 @@ export function ContentEnhancementButtons({
   const [copied, setCopied] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
 
+  console.log("ContentEnhancementButtons rendered with content:", content);
+
   const handleFormatAsMarkdown = async () => {
     if (!content.trim()) {
       alert("Please write some content first!");
@@ -134,12 +136,12 @@ export function ContentEnhancementButtons({
         },
       );
       const data = await response.data;
-      if (data.summary.startsWith("```markdown")) {
-        return data.summary
+      if (data.formatted.startsWith("```markdown")) {
+        return data.formatted
           .replace(/^```markdown\s*([\s\S]*?)\s*```$/, "$1")
           .trim();
       }
-      return data.summary;
+      return data.formatted;
     } catch (error) {
       console.error("Error in API call:", error);
       throw new Error("Failed to format markdown");
